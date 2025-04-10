@@ -1,14 +1,21 @@
 {
   "name": "anti-procrastination",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "main": "src/app/index.js",
   "scripts": {
     "start": "webpack serve --mode development --open",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "server": "webpack --mode production && node ./dist/server.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
     "debug": "^4.4.0",
     "define-lazy-prop": "^3.0.0",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
@@ -16,6 +23,7 @@
     "@babel/core": "^7.17.9",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.7",
+    "@types/bcryptjs": "^2.4.6",
     "babel-loader": "^8.2.3",
     "css-loader": "^6.7.1",
     "html-webpack-plugin": "^5.5.0",
