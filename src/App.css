@@ -3,7 +3,7 @@
 /* Main layout structure */
 .App {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-between;
     padding-left: 200px; /* Adjust left padding to account for the sidebar width */
   }
@@ -11,18 +11,34 @@
   .App-main {
     display: flex;
     justify-content: space-between;
-    padding-left: 100px;
+    padding-left: 90px;
+  }
+
+  .main-content {
+    display: flex;
+    flex-direction: row;
+    width: 1150px; /* Adjust this based on your layout preferences */
+    height: 778px;
+    background-color: bisque;
   }
   
   .middle-section {
     display: flex;
     flex-direction: column;
-    width: 65%; /* Adjust this based on your layout preferences */
+    width: 70%; /* Adjust this based on your layout preferences */
+    border: 2px solid gray;
+    margin: 5px;
+    gap: 300px;
   }
   
   .right-section {
-    background-color: #d57272;
     padding: 20px;
     width: 30%; /* Adjust this based on your layout preferences */
+    border: 2px solid gray;
+    margin: 5px;
+  }
+
+  .middle-section .todo-list {
+    padding-left:20px;
   }
   

@@ -1,11 +1,18 @@
 import React from 'react';
 import './Header.css'; // If you want separate CSS for header and sidebar
+import { useNavigate } from 'react-router-dom';
 
 function Header() {
+  const navigate = useNavigate();
+
+  const handleTitleClick = () => {
+    navigate('/');  // Navigate to FullCalendarPage when title is clicked
+  };
+
   return (
     <div className="header-container">
       {/* Header Section */}
-      <header className="header">
+      <header onClick={handleTitleClick} className="header">
         <div className="logo">
           {/* You can add an actual logo image here */}
           <img src="path-to-your-logo.png" alt="Logo" className="logo-img" />

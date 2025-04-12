@@ -1,10 +1,8 @@
-// src/components/MonthCalendar.js
+// src/components/MainCalendar.js
 import React from 'react';
-import './MonthCalendar.css';
-import { useNavigate } from 'react-router-dom';
+import './MainCalendar.css';
 
-const MonthCalendar = ({ month, year }) => {
-  const navigate = useNavigate();
+const MainCalendar = ({ month, year }) => {
   // Function to get the first day of the month (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
   const getFirstDayOfMonth = (year, month) => {
     return new Date(year, month, 1).getDay(); // getDay() returns the day of the week (0 - Sunday, 6 - Saturday)
@@ -13,6 +11,11 @@ const MonthCalendar = ({ month, year }) => {
   // Function to get the number of days in a month
   const getDaysInMonth = (month, year) => {
     return new Date(year, month + 1, 0).getDate(); // Last day of the month
+  };
+
+  const isToday = (day, month, year) => {
+    const today = new Date();
+    return today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
   };
 
   // Generate the dates of the month
@@ -46,25 +49,21 @@ const MonthCalendar = ({ month, year }) => {
   // Weekdays array (for display)
   const weekdays = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
 
-  const handleTitleClick = () => {
-    navigate('/calendar');  // Navigate to FullCalendarPage when title is clicked
-  };
-
   return (
-    <div className="calendar">
-      <div onClick={handleTitleClick} className="calendar-header">
+    <div className="main-calendar">
+      <div className="main-calendar-header">
         <span>{`${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`}</span>
       </div>
-      <div className="calendar-weekdays">
+      <div className="main-calendar-weekdays">
         {weekdays.map((weekday) => (
-          <div key={weekday} className="calendar-weekday">
+          <div key={weekday} className="main-calendar-weekday">
             {weekday}
           </div>
         ))}
       </div>
-      <div className="calendar-days">
+      <div className="main-calendar-days">
         {daysArray.map((day, index) => (
-          <div key={index} className={`calendar-day ${day ? '' : 'empty'}`}>
+          <div key={index} className={`main-calendar-day ${day ? '' : 'empty'} ${day && isToday(day, month, year) ? 'today' : ''}`}>
             {day}
           </div>
         ))}
@@ -73,4 +72,4 @@ const MonthCalendar = ({ month, year }) => {
   );
 };
 
-export default MonthCalendar;
+export default MainCalendar;
