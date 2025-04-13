@@ -23,11 +23,21 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="drawer_body">
-      <button id="btn_drawer_close" onClick={onClose}></button>
+        <button id="btn_drawer_close" onClick={onClose}></button>
 
 
         <div className="drawer_fixed">
+          <div className='drawer_app'>
+            <div className="logo">
+              {/* You can add an actual logo image here */}
+              <img src="path-to-your-logo.png" alt="Logo" className="logo-img" />
+            </div>
+            <h1 className="title">Calendar App</h1>
+
+          </div>
+
           <div className="drawer_profile">
+
             <div className="avatar" />
             <div className="user_info">
               <p className="username">UserName</p>
