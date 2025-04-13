@@ -4,15 +4,20 @@
 /* Main layout structure */
 .App {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  flex-direction: row;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  /* justify-content: space-between; */
+  background-color: bisque;
+
 }
 
 .App-main {
 
   display: flex;
   flex-wrap: wrap;
-  width: 1024px;
+  width: 100%;
   padding: 0px 30px;
   box-sizing: border-box;
   margin: 72px auto 0px auto;
@@ -22,18 +27,39 @@
 }
 
 .App-main.shifted {
-  margin-left: 240px; /* Sidebar 너비와 동일하게 설정 */
+  margin-left: 240px;
+  width: calc(100% - 240px);
+
+}
+
+.main-content {
+
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  flex-direction: row;
+  width: 100%;
+  /* Adjust this based on your layout preferences */
+  flex-wrap: wrap;
+  box-sizing: border-box;
+  background-color: bisque;
+  margin-top: 5px;
 }
 
 .middle-section {
   display: flex;
-  flex: 6;
+  flex: 2;
   flex-direction: column;
-  width: 65%;
+  width: 70%;
   /* Adjust this based on your layout preferences */
+  gap: 20px;
+  border: 2px solid gray;
+  padding: 20px;
 }
+
 .add_calendar_btn {
-  position: absolute;
+  align-self: flex-end;
+  margin-top: auto;
   bottom: 30px;
   right: 40px;
   width: 50px;
@@ -46,15 +72,24 @@
 }
 
 .right-section {
-  background-color: #d57272;
-  flex: 4;
+  flex: 1;
   padding: 20px;
-  width: 100%;
+  width: 30%;
   /* Adjust this based on your layout preferences */
+  border: 2px solid gray;
 }
 
-@media screen and (max-width:1000px){
-  .App-main{
-      flex-direction: column;
+.middle-section .todo-list {
+  padding-left: 20px;
+}
+
+@media screen and (max-width:1000px) {
+  .main-content {
+    flex-direction: column;
+  }
+
+  .middle-section,
+  .right-section {
+    width: 100%;
   }
 }
