@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';  // Your main styles
 import Header from './components/Header/Header'; // Header component
-import TodoList from './components/TodoList'; // Todo List component
+import Sidebar from './components/Sidebar';
+import TodoList from './components/TodoList/TodoList'; // Todo List component
 import SocialBox from './components/SocialBox'; // Social Box component
 import MonthCalendar from './components/MonthCalendar/MonthCalendar'; // Small calendar
 import MainCalendar from './components/MainCalendar/MainCalendar'; // Full calendar
@@ -12,16 +13,46 @@ function App() {
   const currentDate = new Date();
   const month = currentDate.getMonth(); // Current month (0-11)
   const year = currentDate.getFullYear(); // Current year
-  
+
+  //Sidebar
+  const [calendars, setCalendars] = useState(['Calendar']);
+  const [selectedCalendar, setSelectedCalendar] = useState('Calendar 01');
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const addCalendar = () => {
+    const newName = `Calendar ${calendars.length + 1}`;
+    setCalendars([...calendars, newName]);
+  };
+  const deleteCalendar = (index) => {
+    const newCalendars = calendars.filter((_, i) => i !== index);
+    setCalendars(newCalendars);
+  };
+  const renameCalendar = (index, newName) => {
+    const newCalendars = [...calendars];
+    newCalendars[index] = newName;
+    setCalendars(newCalendars);
+  };
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+
+
   return (
     <Router>
-      <Header />
       <div className="App">
         {/* Header and Sidebar */}
-        
 
-        {/* Conditional rendering based on the current route */}
-        <div className="App-main">
+        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <Sidebar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          calendars={calendars}
+          onSelectCalendar={(name) => setSelectedCalendar(name)}
+          onAddCalendar={addCalendar}
+          onDeleteCalendar={deleteCalendar}
+          onRenameCalendar={renameCalendar}
+        />
+
+        {/* Main Content */}
+        <div className={`App-main ${sidebarOpen ? 'shifted' : ''}`}>
           <Routes>
             {/* Main Page - Only show this route when we are on "/" */}
             <Route
@@ -31,6 +62,8 @@ function App() {
                   <div className="middle-section">
                     <TodoList />
                     <MonthCalendar month={month} year={year} />
+                    <button className="add_calendar_btn" onClick={addCalendar}>+</button>
+
                   </div>
 
                   <div className="right-section">
@@ -40,19 +73,20 @@ function App() {
               }
             />
 
-            {/* Full Calendar Page - Only show this when the route is "/calendar" */}
-            <Route 
+            <Route
               path="/calendar"
               element={
                 <div className="main-content">
-              <MainCalendar month={month} year={year}
-                />
+                  <MainCalendar month={month} year={year}
+                  />
                 </div>
               } />
           </Routes>
         </div>
       </div>
-    </Router>
+
+
+    </Router >
   );
 }
 

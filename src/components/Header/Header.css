@@ -1,72 +1,63 @@
 /* Header.css */
+button {
+  border: none;
+  background-color: transparent;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+ul {
+  list-style: none;
+}
+
+header {
+  position: absolute;
+  top: 0px;
+  display: flex;
+  width: 100%;
+  height: 50px;
+  justify-content: center;
+
+}
+
+.top_header_bg {
+  position: fixed;
+  top: 0px;
+  width: 100%;
+  height: 72px;
+  background-color: bisque;
+  border-bottom: 1px solid rgb(0, 0, 0);
+
+}
 
 /* Container for header and sidebar */
-.header-container {
-    display: flex;
-    flex-direction: column; /* Stack header and sidebar vertically */
-    align-items: flex-start;
-    width: 100%;
-  }
-  
-  /* Header styles */
-  .header {
-    background-color: #282c34;
-    color: white;
-    padding: 20px;
-    width: 250px;
-    text-align: center;
-    position: fixed; /* Fixed at the top */
-    top: 0;
-    left: 0;
-    z-index: 1; /* Ensure the header stays above other content */
-  }
-  
-  .logo {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .logo-img {
-    width: 50px; /* Adjust the logo size */
-    height: auto;
-    margin-right: 10px;
-  }
-  
-  .title {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  /* Sidebar styles */
-  .sidebar {
-    background-color: pink;
-    padding: 20px;
-    width: 250px; /* Adjust sidebar width */
-    position: fixed; /* Fixed on the left side */
-    top: 120px; /* Sidebar starts below the header */
-    left: 0;
-    height: 100vh; /* Sidebar takes full height */
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow for visual appeal */
-    z-index: 0; /* Sidebar is below the header */
-  }
-  
-  .sidebar ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .sidebar ul li {
-    margin: 10px 0;
-  }
-  
-  .sidebar ul li a {
-    text-decoration: none;
-    color: #333;
-  }
-  
-  .sidebar ul li a:hover {
-    color: #4CAF50;
-  }
-  
+.header_container {
+  display: flex;
+  position: fixed;
+  width: 90%;
+  height: 50px;
+  padding: 16px 30px;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1;
+}
+
+.header_container #btn_more {
+  background-image: url('../../../image/hamburger.png');
+  background-size: contain;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+
+#top_nav>li {
+  display: inline-block;
+}
+
+.header_container>#top_nav span {
+  padding: 5px;
+}
