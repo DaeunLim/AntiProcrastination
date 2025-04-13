@@ -10,7 +10,6 @@ function Header({ onMenuClick }) {
           {/* You can add an actual logo image here */}
 
         <button id="btn_more" aria-label="Menu" onClick={onMenuClick}></button>
-        <h1 className="title">Calendar App</h1>
         <ul id="top_nav">
           <li><a href=""><span>Login</span></a></li>
         </ul>
