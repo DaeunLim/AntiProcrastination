@@ -12,6 +12,7 @@ function Header({ onMenuClick }) {
 
         <button id="btn_more" aria-label="Menu" onClick={onMenuClick}></button>
         <ul id="top_nav">
+            <li><Link to="/signup"><span>Signup</span></Link></li>
           <li><Link to="/login"><span>Login</span></Link></li>
         </ul>
       </div>
