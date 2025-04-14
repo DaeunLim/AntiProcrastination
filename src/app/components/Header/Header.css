@@ -46,7 +46,7 @@ header {
 }
 
 .header_container #btn_more {
-  background-image: url('../../../image/hamburger.png');
+  background-image: url('../../image/hamburger.png');
   background-size: contain;
   width: 16px;
   height: 16px;
