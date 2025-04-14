@@ -17,7 +17,7 @@ function Login() {
             await axios.post("http://localhost:8080", {username, password})
                 .then(res => {
                     if(res.data="Successfully logged in") { //Username is present
-                        history("/Home",{state:{id:username}}) //Passes email to welcome page
+                        history("/home",{state:{id:username}}) //Passes email to welcome page
                     }
                     else if(res.data="Account does not exist") {
                         alert("Account does not exist")
@@ -62,7 +62,7 @@ function Login() {
                 <br />
                 <p>OR</p>
                 <br />
-                <Link to="/Signup">Don't have an account? Signup here</Link>
+                <Link to="/signup">Don't have an account? Signup here</Link>
         </div>
     );
 };

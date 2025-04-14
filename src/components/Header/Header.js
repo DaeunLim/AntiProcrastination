@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import './Header.css';
+import {Link} from 'react-router-dom';
 
 function Header({ onMenuClick }) {
   return (
@@ -11,7 +12,7 @@ function Header({ onMenuClick }) {
 
         <button id="btn_more" aria-label="Menu" onClick={onMenuClick}></button>
         <ul id="top_nav">
-          <li><a href=""><span>Login</span></a></li>
+          <li><Link to="/login"><span>Login</span></Link></li>
         </ul>
       </div>
     </header>

@@ -7,12 +7,12 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cors())
 
 //Login page
-app.get("/", cors(), (req, res) => {
+app.get("/login", cors(), (req, res) => {
 
 })
 
 //Data from login
-app.post("/", async(req, res) => {
+app.post("/login", async(req, res) => {
     const{username,password} = req.body
     try {
         //Verify login credentials in database
@@ -30,7 +30,7 @@ app.post("/", async(req, res) => {
 })
 
 //Data from Signup
-app.post("/Signup", async(req, res) => {
+app.post("/signup", async(req, res) => {
     const{email,username,password} = req.body
     const data={
         email:email,

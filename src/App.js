@@ -7,7 +7,7 @@ import SocialBox from './components/SocialBox'; // Social Box component
 import MonthCalendar from './components/MonthCalendar/MonthCalendar'; // Small calendar
 import MainCalendar from './components/MainCalendar/MainCalendar'; // Full calendar
 import { useNavigate } from 'react-router-dom';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // React Router
+import { Routes, Route } from 'react-router-dom'; // React Router
 
 function App() {
   const currentDate = new Date();
@@ -36,7 +36,7 @@ function App() {
 
 
   return (
-    <Router>
+    //<Router> --deleted since the render is wrapped in <BrowserRouter>
       <div className="App">
         {/* Header and Sidebar */}
 
@@ -84,9 +84,6 @@ function App() {
           </Routes>
         </div>
       </div>
-
-
-    </Router >
   );
 }
 
