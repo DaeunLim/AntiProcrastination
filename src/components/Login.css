@@ -1,0 +1,15 @@
+h3 {
+    font-family: "Modak", system-ui
+}
+.modak-regular {
+    font-family: "Modak", system-ui;
+    font-weight: 400;
+    font-style: normal;
+}
+.LoginForms {
+    display: flex;
+    justify-content: center;
+    min-height: 110vh;
+    align-items: center;
+    text-align: center;
+}
