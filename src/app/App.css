@@ -1,28 +1,95 @@
 /* App.css */
 
+
 /* Main layout structure */
 .App {
-    display: flex;
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  /* justify-content: space-between; */
+  background-color: bisque;
+
+}
+
+.App-main {
+
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 0px 30px;
+  box-sizing: border-box;
+  margin: 72px auto 0px auto;
+  flex-direction: row;
+  flex-direction: row;
+  transition: margin-left 0.3s ease;
+}
+
+.App-main.shifted {
+  margin-left: 240px;
+  width: calc(100% - 240px);
+
+}
+
+.main-content {
+
+  display: flex;
+  flex: 1;
+  gap: 20px;
+  flex-direction: row;
+  width: 100%;
+  /* Adjust this based on your layout preferences */
+  flex-wrap: wrap;
+  box-sizing: border-box;
+  background-color: bisque;
+  margin-top: 5px;
+}
+
+.middle-section {
+  display: flex;
+  flex: 2;
+  flex-direction: column;
+  width: 70%;
+  /* Adjust this based on your layout preferences */
+  gap: 20px;
+  border: 2px solid gray;
+  padding: 20px;
+}
+
+.add_calendar_btn {
+  align-self: flex-end;
+  margin-top: auto;
+  bottom: 30px;
+  right: 40px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #ccc;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+}
+
+.right-section {
+  flex: 1;
+  padding: 20px;
+  width: 30%;
+  /* Adjust this based on your layout preferences */
+  border: 2px solid gray;
+}
+
+.middle-section .todo-list {
+  padding-left: 20px;
+}
+
+@media screen and (max-width:1000px) {
+  .main-content {
     flex-direction: column;
-    justify-content: space-between;
-    padding-left: 200px; /* Adjust left padding to account for the sidebar width */
   }
-  
-  .App-main {
-    display: flex;
-    justify-content: space-between;
-    padding-left: 100px;
-  }
-  
-  .middle-section {
-    display: flex;
-    flex-direction: column;
-    width: 65%; /* Adjust this based on your layout preferences */
-  }
-  
+
+  .middle-section,
   .right-section {
-    background-color: #d57272;
-    padding: 20px;
-    width: 30%; /* Adjust this based on your layout preferences */
+    width: 100%;
   }
-  
+}
