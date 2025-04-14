@@ -69,7 +69,7 @@ function Signup() {
             <br />
             <p>OR</p>
             <br />
-            <Link to="/">Already have an account? Login here</Link>
+            <Link to="/login">Already have an account? Login here</Link>
         </div>
     )
 }
