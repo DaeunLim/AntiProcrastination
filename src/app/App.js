@@ -8,8 +8,54 @@ import MonthCalendar from './components/MonthCalendar/MonthCalendar'; // Small c
 import MainCalendar from './components/MainCalendar/MainCalendar'; // Full calendar
 import { useNavigate } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // React Router
+import { useEffect } from 'react';
 
 function App() {
+
+  useEffect( () => {
+    const username = "test";
+    const password = "password";
+    const owner = "";
+    const subscribers = {};
+    const dates = {};
+    const testLogin = async () => {
+      const res = await fetch('http://localhost:8080/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        'credentials': 'include',
+        body: JSON.stringify({ username, password }),
+      });
+      const data = res;
+      console.log(data);
+      console.log(data.session.id);
+    }
+    const testAdd = async () => {
+      const res = await fetch('http://localhost:8080/api/calendar/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ owner, subscribers, dates }),
+      });
+      const data = res;
+      console.log(data);
+    }
+    const testVerify = async () => {
+      const res = await fetch('http://localhost:8080/api/verify', {
+        method: 'GET',
+        'credentials': 'include',
+      });
+      const data = res;
+      const { username } = data.body;
+      console.log(username);
+      console.log(data.session);
+    }
+    testLogin();
+    //testAdd();
+    testVerify();
+  })
   const currentDate = new Date();
   const month = currentDate.getMonth(); // Current month (0-11)
   const year = currentDate.getFullYear(); // Current year

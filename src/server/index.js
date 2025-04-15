@@ -7,7 +7,9 @@ import { DateModel } from '../models/dateSchema.js';
 import connectMongoDB from '../libs/mongodb.js';
 import cors from 'cors';
 import bcrypt from "bcryptjs";
-import jwt, { verify } from 'jsonwebtoken';
+import session from 'express-session';
+const MongoDBStore = require('connect-mongodb-session')(session);
+
 
 require('dotenv').config() // get .env variables
 
@@ -32,9 +34,34 @@ require('dotenv').config() // get .env variables
 
 
 const app = express(); // creates express app
-app.use(express.json()); // reads json
+app.set('trust proxy', 1);
+const store = new MongoDBStore({
+  uri: process.env.MONGODB_URI,
+  collection: 'sessions',
+});
+store.on('error', function(error) {
+  console.log(error);
+});
+app.use(session({
+  name: 'session',
+  secret: process.env.SESSION_SECRET,
+  saveUninitialized: false,
+  resave: false,
+  store: store,
+  cookie: {
+    httpOnly: false,
+    secure: false,
+    sameSite: true,
+  }
+}));
 
-app.use(cors()); // allows requests only from same domain
+app.use(cors({
+  origin: "http://localhost:3000",
+  methods: ["POST", "PUT", "GET", "DELETE"],
+  credentials: true,
+})); // allows requests only from same domain
+
+app.use(express.json()); // reads json
 
 // WHAT NEEDS TO HAPPEN UPON LOAD
 // : user creates account
@@ -53,6 +80,15 @@ app.use(cors()); // allows requests only from same domain
 //    | to user via acquiring id of calendar
 
 
+const isAuthenticated = (req, res, next) => {
+  console.log(req.session);
+  console.log(req.session.user);
+  if (!req.session.user) { // if not signed in
+    return res.status(401).json({ error: 'Unauthorized' });
+  } else {
+    next(); // next step
+  }
+};
 // API section
 // : TODO
 //    | add /api/dates methods
@@ -106,33 +142,17 @@ app.post('/api/user/signup', async (req, res) => {
 //             - call this several times to acquire each calendar that the user is subscribed to or owns
 //             - other solution would be to call find function to find each calendar within calendar category
 // : POST calendar
-app.post('/api/calendar/add', async (req, res) => {
+app.post('/api/calendar/add', isAuthenticated, async (req, res) => {
   try {
-    const { owner, subscribers, dates, token } = req.body; // get calendar info
+    const { owner, subscribers, dates } = req.body; // get calendar info
 
     const _id = new mongoose.Types.ObjectId(); // generate id for adding to user purposes and in case of failure of creation
-    
-    // NOTES:
-    // could change this to be in-client and not server-side (this would be just verifying session and then sending user info)
-    // this can be changed, basically
-    const verifyResponse = await fetch("http://localhost:8080/api/verify", { // acquire and verify user info
-      method: "GET",
-      headers: {
-        "Authorization": `BEARER ${token}`, // sends token info
-      },
-    });
-
-    if (verifyResponse.status != 200) {
-      return res.status(401).json({ error: "Failed verification" });
-    }
 
     await connectMongoDB(); // connect to database
-
-    const { _id: user_id, calendars } = await verifyResponse.json(); // deconstruct token info which contains user data
     
-    await UserModel.updateOne({ _id: user_id }, { calendars: [...calendars, _id.toString()] }) // update user with new calendar
+    await UserModel.updateOne({ _id: req.session.user }, { $addToSet: { calendars: _id.toString() }}) // update user with new calendar
 
-    await CalendarModel.create({ _id, owner, subscribers, dates }); // add new calendar
+    await CalendarModel.create({ _id, owner: req.session.user, subscribers, dates }); // add new calendar
 
     return res.status(201).json({ message: "Calendar added successfully", _id: _id }); // send back message and calendar id
   } catch (error) {
@@ -188,47 +208,37 @@ app.listen(8080, () => {
 // AUTH STUFF
 // credit: https://medium.com/@ravipatel.it/building-a-secure-user-registration-and-login-api-with-express-js-mongodb-and-jwt-10b6f8f3741d
 // method determines if token sent is even possible
-const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization'].split(' ')[1]; // get token info
-  if (!token) { // if no token/not signed in
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => { // check if this is a possible token
-    if (err) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-    req.body = decoded; // send back data within token
-    next(); // next step
-  });
-};
 // credit: https://medium.com/@ravipatel.it/building-a-secure-user-registration-and-login-api-with-express-js-mongodb-and-jwt-10b6f8f3741d
 // Protected route to get user details and verify token
 // : basically, this should only be able to be used if user is logged in, and then checking if their session is valid
 // : if their session isn't, then stop them
 // : GET verify
-app.get('/api/verify', verifyToken, async (req, res) => {
+app.get('/api/verify', isAuthenticated, async (req, res) => {
   try {
-    const _id = req.body; // decoded user info
+    console.log("verify")
+    console.log(req.headers.cookie)
+    console.log(req.session)
+    console.log(req.session.user)
+    const _id = req.session.user; // decoded user info
 
     await connectMongoDB();
     
     const user = await UserModel.findById(_id); // get user info
 
     if (!user) { // if no user
+      req.session = null;
       return res.status(404).json({ error: 'User not found' });
     }
     // send back user info
     res.status(200).json({ _id: user._id, username: user.username, email: user.email, calendars: user.calendars });
   } catch (error) {
-    console.error("Error verifying token:", error);
+    console.error("Error verifying session:", error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 // : POST login
 app.post('/api/login', async (req, res) => {
   try {
-
     const { username, password } = req.body; // get form submitted credentials
 
     if (!username || !password) return null; // if one is empty, send it back NOTE: might need to make it send back response and not null
@@ -244,15 +254,9 @@ app.post('/api/login', async (req, res) => {
       );
 
       if (isMatch) { //create token
-        const token = jwt.sign({
-          _id: user._id.toString(),
-          email: user.email,
-          username: user.username,
-          calendars: user.calendars,
-        }, process.env.JWT_SECRET, {
-          expiresIn: process.env.JWT_EXPIRES_IN,
-        });
-        return res.status(200).json({ token }); // send back token
+        req.session.user = user._id.toString();
+        res.send(JSON.stringify(req.session));
+        //res.status(200).json({ message: "Login successful" }); // send back session
       } else {
         return res.status(401).json({ error: "Username or Password is not correct" });
       }
@@ -264,3 +268,7 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ error: 'Failed to login' });
   }
 });
+
+
+
+
