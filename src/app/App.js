@@ -8,18 +8,19 @@ import MonthCalendar from './components/MonthCalendar/MonthCalendar'; // Small c
 import MainCalendar from './components/MainCalendar/MainCalendar'; // Full calendar
 import { useNavigate } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // React Router
-import { useEffect } from 'react';
+import { useEffect } from 'react'; // needed for on load
 
 function App() {
 
-  useEffect( () => {
+  /** TESTING FOR ROUTES! EDIT/FOLLOW AS GUIDE, BUT ASK IF NEED CLARIFICATION */
+  /*useEffect( () => {
     const username = "test";
     const password = "password";
     const owner = "";
-    const subscribers = {};
-    const dates = {};
+    const subscribers = [];
+    const dates = [];
     const testLogin = async () => {
-      const res = await fetch('http://localhost:8080/api/login', {
+      const res = await fetch('http://localhost:8080/api/user/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -27,35 +28,51 @@ function App() {
         'credentials': 'include',
         body: JSON.stringify({ username, password }),
       });
-      const data = res;
+      const data = await res.json();
       console.log(data);
-      console.log(data.session.id);
     }
-    const testAdd = async () => {
+    const testAddCalendar = async () => {
       const res = await fetch('http://localhost:8080/api/calendar/add', {
         method: 'POST',
+        'credentials': 'include',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ owner, subscribers, dates }),
       });
-      const data = res;
+      const data = await res.json();
       console.log(data);
     }
     const testVerify = async () => {
-      const res = await fetch('http://localhost:8080/api/verify', {
+      const res = await fetch('http://localhost:8080/api/user/verify', {
         method: 'GET',
         'credentials': 'include',
       });
-      const data = res;
-      const { username } = data.body;
-      console.log(username);
-      console.log(data.session);
+      const data = await res.json();
+      const { calendars } = data;
+      const date = new Date(2025, 4, 24);
+      const name = "Project Presentation!";
+      const time = Date.now();
+      const type = "Event";
+      console.log(calendars);
+      testAddDate(calendars[0], name, date, time, type);
     }
-    testLogin();
-    //testAdd();
+    const testAddDate = async (calendar, name, date, time, type) => {
+      const res = await fetch('http://localhost:8080/api/date/add', {
+        method: 'POST',
+        'credentials': 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ calendar, name, date, time, type }),
+      });
+      const data = await res.json();
+      console.log(data);
+    }
+    //testLogin();
+    //testAddCalendar();
     testVerify();
-  })
+  }) */
   const currentDate = new Date();
   const month = currentDate.getMonth(); // Current month (0-11)
   const year = currentDate.getFullYear(); // Current year

@@ -5,7 +5,7 @@
   "scripts": {
     "start": "webpack serve --mode development --open",
     "build": "webpack --mode production",
-    "server": "webpack --mode production && node ./dist/server.js"
+    "server": "webpack --mode development && node ./dist/server.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -16,7 +16,6 @@
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
-    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

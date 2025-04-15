@@ -8,7 +8,7 @@ import connectMongoDB from '../libs/mongodb.js';
 import cors from 'cors';
 import bcrypt from "bcryptjs";
 import session from 'express-session';
-const MongoDBStore = require('connect-mongodb-session')(session);
+import connectMongoDBSession from 'connect-mongodb-session';
 
 
 require('dotenv').config() // get .env variables
@@ -24,36 +24,36 @@ require('dotenv').config() // get .env variables
 // 1. make a .env file
 // 2. add this mongodb thing under MONGODB_URI=
 // -- mongodb+srv://<USERNAME>>:<PASSWORD>>@cluster0.nplvmb2.mongodb.net/timely?retryWrites=true&w=majority&appName=Cluster0
-// 3. type this command and add the result to the .env under JWT_SECRET=
+// 3. type this command and add the result to the .env under SESSION_SECRET=
 // -- node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-// 4. add JWT_EXPIRES_IN=30d
 
 // IF PROBLEMS ARISE
-// Make sure express, bcryptjs (NOT BCRYPT), mongoose, jwt, and cors are all installed
+// Make sure express, bcryptjs (NOT BCRYPT), mongoose, express-session, connect-mongodb-session, and cors are all installed
 // Shoot me a message because I am pretty sure I forgot stuff
 
 
 const app = express(); // creates express app
-app.set('trust proxy', 1);
+const MongoDBStore = connectMongoDBSession(session); // hookup MongoDB to Express
+if (process.env.NODE_ENV === "production") app.set('trust proxy', 1); // trust first proxy when deployed
 const store = new MongoDBStore({
   uri: process.env.MONGODB_URI,
   collection: 'sessions',
-});
-store.on('error', function(error) {
+}); // create session in MongoDB
+store.on('error', function (error) {
   console.log(error);
-});
+}); // when error occurs
 app.use(session({
   name: 'session',
-  secret: process.env.SESSION_SECRET,
-  saveUninitialized: false,
-  resave: false,
-  store: store,
+  secret: process.env.SESSION_SECRET, // sign string
+  saveUninitialized: false, // do not save session until modified
+  resave: false, // do not save to store if no changes to request
+  store: store, // where to save session
   cookie: {
-    httpOnly: false,
-    secure: false,
-    sameSite: true,
+    httpOnly: true, // cookie can only be accessed through HTTP on this server
+    secure: (process.env.NODE_ENV === "production"), // HTTP in dev, HTTPS otherwise
+    sameSite: true, // cookie applicable only to website
   }
-}));
+})); // creates session
 
 app.use(cors({
   origin: "http://localhost:3000",
@@ -67,8 +67,10 @@ app.use(express.json()); // reads json
 // : user creates account
 // : user then logs into account
 // : verify and then create token
-//    | token contains user info besides password and email
-//    | need user ID or username for setting calendar info and retrieving calendars of user
+//    | session contains user id (NOT USERNAME)
+//    | need user ID for setting calendar info and retrieving calendars of user
+//    | use /api/user/verify to acquire ID from session
+//    | THIS MIGHT NEED TO CHANGE TO FIX SECURITY ISSUES
 // : retrieve calendars and then render them
 //    | store within array and prevent continuous fetch for them
 //    | any changes need to be immediately uploaded to database
@@ -79,28 +81,25 @@ app.use(express.json()); // reads json
 //    | to calendar database
 //    | to user via acquiring id of calendar
 
-
+// QUESTION: do we want to call this every time we receive a request?
+// if there is a session with user info, go ahead
 const isAuthenticated = (req, res, next) => {
-  console.log(req.session);
-  console.log(req.session.user);
   if (!req.session.user) { // if not signed in
     return res.status(401).json({ error: 'Unauthorized' });
   } else {
     next(); // next step
   }
 };
+
 // API section
-// : TODO
-//    | add /api/dates methods
 // /api/user/
 // : TODO
 //    | follow diagram on Miro for attributes and other stuff
 //    | See AUTH STUFF for basic authentication done
-//    | check this link: https://medium.com/@ravipatel.it/building-a-secure-user-registration-and-login-api-with-express-js-mongodb-and-jwt-10b6f8f3741d
-// : POST user
+// : POST signup
 app.post('/api/user/signup', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password } = req.body; // get signup info
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 5);
@@ -131,8 +130,103 @@ app.post('/api/user/signup', async (req, res) => {
       { message: "An error occurred while creating the user. Please try again later." },
     );
   }
-})
+});
+// AUTH STUFF
+// credit: https://medium.com/@ravipatel.it/building-a-secure-user-registration-and-login-api-with-express-js-mongodb-and-jwt-10b6f8f3741d
+// method determines if token sent is even possible
+// credit: https://medium.com/@ravipatel.it/building-a-secure-user-registration-and-login-api-with-express-js-mongodb-and-jwt-10b6f8f3741d
+// Protected route to get user details and verify token
+// : basically, this should only be able to be used if user is logged in, and then checking if their session is valid
+// : if their session isn't, then stop them
+// : GET verify
+//    | this should be called to acquire user info on login CLIENT SIDE, especially to get calendar info of user
+app.get('/api/user/verify', isAuthenticated, async (req, res) => {
+  try {
+    const _id = req.session.user; // decoded user info
+
+    await connectMongoDB();
+
+    const user = await UserModel.findById(_id); // get user info
+
+    if (!user) { // if no user
+      req.session = null;
+      return res.status(404).json({ error: 'User not found' });
+    }
+    // send back user info
+    res.status(200).json({ _id: user._id, username: user.username, email: user.email, calendars: user.calendars });
+  } catch (error) {
+    console.error("Error verifying session:", error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+// : POST login
+app.post('/api/user/login', async (req, res) => {
+  try {
+    const { username, password } = req.body; // get form submitted credentials
+
+    if (!username || !password) return null; // if one is empty, send it back NOTE: might need to make it send back response and not null
+
+    await connectMongoDB(); // connect to database
+
+    const user = await UserModel.findOne({ username }); // check to see if there is a user
+
+    if (user) {
+      const isMatch = await bcrypt.compare( // compare password to hashed password
+        password,
+        user.password,
+      );
+
+      if (isMatch) { //create session
+        // regenerate the session, which is good practice to help
+        // guard against forms of session fixation
+        req.session.regenerate((err) => {
+          if (err) next(err);
+
+
+          req.session.user = user._id.toString();
+
+          // save the session before redirection to ensure page
+          // load does not happen before session is saved
+          req.session.save((err) => {
+            if (err) return next(err)
+          }); // save
+          return res.status(200).json({ message: "Login successful" }); // send back session
+        }); // regenerate session
+      } else {
+        return res.status(401).json({ error: "Username or Password is not correct" });
+      }
+    } else {
+      return res.status(404).json({ error: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error logging in user:", error);
+    res.status(500).json({ error: 'Failed to login' });
+  }
+});
+// : GET logout
+//    | Taken from express-session; might need to update
+app.get('/api/user/logout', isAuthenticated, (req, res) => {
+  // logout logic
+
+  // clear the user from the session object and save.
+  // this will ensure that re-using the old session id
+  // does not have a logged in user
+  req.session.user = null
+  req.session.save((err) => {
+    if (err) next(err)
+
+    // regenerate the session, which is good practice to help
+    // guard against forms of session fixation
+    req.session.regenerate((err) => {
+      if (err) next(err)
+      res.redirect('/')
+    });
+  });
+});
 // /api/calendar/
+// : usage notes
+//    | verification/authorization of the user should be done client-side using /api/user/verify to get user info
+//    | can change to allow it here, but not sure how effective or exact idea
 // : implementation notes
 //    | do we really need subscribers upon creation? do we need dates upon creation?
 //    | do we really need owner for calendar? should we allow owner transfer?
@@ -141,23 +235,48 @@ app.post('/api/user/signup', async (req, res) => {
 //         > need one for specific id
 //             - call this several times to acquire each calendar that the user is subscribed to or owns
 //             - other solution would be to call find function to find each calendar within calendar category
-// : POST calendar
-app.post('/api/calendar/add', isAuthenticated, async (req, res) => {
+app.get('/api/calendar/:id', async (req, res) => {
   try {
+    const { id } = req.params; // get id
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) { // check id
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    await connectMongoDB(); // connect to database
+
+    const calendar = await CalendarModel.findOne({ _id: id }); // find calendar
+
+    if (!calendar) {
+      return res.status(404).json({ message: "Calendar not found" });
+    }
+
+    return res.status(200).json(calendar); // send back calendar
+  } catch (error) {
+    console.error("Error finding calendar:", error);
+    return res.status(500).json({ error: "Failed to find calendar" });
+  }
+})
+// : POST calendar
+app.post('/api/calendar/add', async (req, res) => {
+  try {
+    // NOTE: this line can be removed/changed. This supports the creation of a calendar,
+    // but our calendar creator could initially have no dates or subscribers, and the owner
+    // is given inherently by the session
     const { owner, subscribers, dates } = req.body; // get calendar info
 
     const _id = new mongoose.Types.ObjectId(); // generate id for adding to user purposes and in case of failure of creation
 
     await connectMongoDB(); // connect to database
-    
-    await UserModel.updateOne({ _id: req.session.user }, { $addToSet: { calendars: _id.toString() }}) // update user with new calendar
+
+    await UserModel.updateOne({ _id: req.session.user }, { $addToSet: { calendars: _id.toString() } }) // update user with new calendar
 
     await CalendarModel.create({ _id, owner: req.session.user, subscribers, dates }); // add new calendar
 
     return res.status(201).json({ message: "Calendar added successfully", _id: _id }); // send back message and calendar id
   } catch (error) {
     console.error("Error adding calendar:", error);
-    res.status(500).json({ error: "Failed to add calendar" });
+    return res.status(500).json({ error: "Failed to add calendar" });
   }
 })
 // : PUT calendar
@@ -170,10 +289,10 @@ app.put('/api/calendar/update/:id', async (req, res) => {
 
     await CalendarModel.findByIdAndUpdate(id, { owner, subscribers, dates }); // update calendar
 
-    res.status(200).json({ message: "Calendar updated successfully" }); // send back message
+    return res.status(200).json({ message: "Calendar updated successfully" }); // send back message
   } catch (error) {
     console.error("Error updating calendar:", error);
-    res.status(500).json({ error: "Failed to update calendar" });
+    return res.status(500).json({ error: "Failed to update calendar" });
   }
 })
 // : DELETE calendar
@@ -192,10 +311,70 @@ app.delete('/api/calendar/delete/:id', async (req, res) => {
       return res.status(404).json({ message: "Calendar not found" }); // if no calendar
     }
 
-    res.status(200).json({ message: "Calendar deleted" }); // send back message
+    return res.status(200).json({ message: "Calendar deleted" }); // send back message
   } catch (error) {
     console.error("Error deleting calendar:", error);
-    res.status(500).json({ error: "Failed to delete calendar" });
+    return res.status(500).json({ error: "Failed to delete calendar" });
+  }
+})
+// /api/date/
+// : POST date
+app.post('/api/date/add', async (req, res) => {
+  try {
+    const { calendar, name, date, time, type } = req.body; // get calendar info
+
+    const _id = new mongoose.Types.ObjectId(); // generate id for adding to calendar purposes and in case of failure of creation
+
+    await connectMongoDB(); // connect to database
+
+    // NOTE: could change this implemenation to not need calendar or add verification from bad actors
+    // trying to add bad info to date. Should add verification server side or keep client side?
+    await CalendarModel.updateOne({ calendar }, { $addToSet: { dates: _id.toString() } }) // update calendar with new date
+
+    await DateModel.create({ _id, calendar, name, date, time, type }); // add new date
+
+    return res.status(201).json({ message: "Date added successfully", _id: _id }); // send back message and date id
+  } catch (error) {
+    console.error("Error adding date:", error);
+    return res.status(500).json({ error: "Failed to add date" });
+  }
+})
+// : PUT date
+app.put('/api/date/update/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // get id
+    const { calendar, name, date, time, type } = req.body; // get calendar info
+
+    await connectMongoDB(); // connect to database
+
+    await DateModel.findByIdAndUpdate(id, { calendar, name, date, time, type }); // update calendar
+
+    return res.status(200).json({ message: "Date updated successfully" }); // send back message
+  } catch (error) {
+    console.error("Error updating date:", error);
+    return res.status(500).json({ error: "Failed to update date" });
+  }
+})
+// : DELETE date
+app.delete('/api/date/delete/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // get id
+
+    if (!mongoose.Types.ObjectId.isValid(id)) { // if valid id
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    await connectMongoDB(); // connect to database
+    const deletedDate = await DateModel.findByIdAndDelete(id); // check if calendar
+
+    if (!deletedDate) {
+      return res.status(404).json({ message: "Date not found" }); // if no calendar
+    }
+
+    return res.status(200).json({ message: "Date deleted" }); // send back message
+  } catch (error) {
+    console.error("Error deleting date:", error);
+    return res.status(500).json({ error: "Failed to delete date" });
   }
 })
 
@@ -203,72 +382,3 @@ app.delete('/api/calendar/delete/:id', async (req, res) => {
 app.listen(8080, () => {
   console.log('server listening on port 8080')
 })
-
-
-// AUTH STUFF
-// credit: https://medium.com/@ravipatel.it/building-a-secure-user-registration-and-login-api-with-express-js-mongodb-and-jwt-10b6f8f3741d
-// method determines if token sent is even possible
-// credit: https://medium.com/@ravipatel.it/building-a-secure-user-registration-and-login-api-with-express-js-mongodb-and-jwt-10b6f8f3741d
-// Protected route to get user details and verify token
-// : basically, this should only be able to be used if user is logged in, and then checking if their session is valid
-// : if their session isn't, then stop them
-// : GET verify
-app.get('/api/verify', isAuthenticated, async (req, res) => {
-  try {
-    console.log("verify")
-    console.log(req.headers.cookie)
-    console.log(req.session)
-    console.log(req.session.user)
-    const _id = req.session.user; // decoded user info
-
-    await connectMongoDB();
-    
-    const user = await UserModel.findById(_id); // get user info
-
-    if (!user) { // if no user
-      req.session = null;
-      return res.status(404).json({ error: 'User not found' });
-    }
-    // send back user info
-    res.status(200).json({ _id: user._id, username: user.username, email: user.email, calendars: user.calendars });
-  } catch (error) {
-    console.error("Error verifying session:", error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-// : POST login
-app.post('/api/login', async (req, res) => {
-  try {
-    const { username, password } = req.body; // get form submitted credentials
-
-    if (!username || !password) return null; // if one is empty, send it back NOTE: might need to make it send back response and not null
-
-    await connectMongoDB(); // connect to database
-
-    const user = await UserModel.findOne({ username }); // check to see if there is a user
-
-    if (user) {
-      const isMatch = await bcrypt.compare( // compare password to hashed password
-        password,
-        user.password,
-      );
-
-      if (isMatch) { //create token
-        req.session.user = user._id.toString();
-        res.send(JSON.stringify(req.session));
-        //res.status(200).json({ message: "Login successful" }); // send back session
-      } else {
-        return res.status(401).json({ error: "Username or Password is not correct" });
-      }
-    } else {
-      return res.status(404).json({ error: "User not found" });
-    }
-  } catch (error) {
-    console.error("Error logging in user:", error);
-    res.status(500).json({ error: 'Failed to login' });
-  }
-});
-
-
-
-
