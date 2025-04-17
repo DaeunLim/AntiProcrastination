@@ -1,5 +1,6 @@
 // Require Mongoose
-import { Schema as _Schema, model } from "mongoose";
+import mongoose, { Schema as _Schema, model } from "mongoose";
+import { CalendarModel } from "./calendarSchema";
 
 // Define a schema
 const Schema = _Schema;
@@ -18,7 +19,8 @@ const userSchema = new Schema({
         required: true,
     },
     calendars: {
-        type: [String],
+        type: [mongoose.ObjectId],
+        ref: 'Calendar'
     },
   });
 

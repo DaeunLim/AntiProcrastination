@@ -5,10 +5,6 @@ import { Schema as _Schema, model } from "mongoose";
 const Schema = _Schema;
 
 const dateSchema = new Schema({
-    calendar: {
-        type: String,
-        required: true,
-    },
     name: {
         type: String,
         required: true,

@@ -230,6 +230,25 @@ app.get('/api/user/logout', isAuthenticated, (req, res) => {
 // : implementation notes
 //    | do we really need subscribers upon creation? do we need dates upon creation?
 //    | do we really need owner for calendar? should we allow owner transfer?
+// : GET many
+app.get('/api/calendar/', async (req, res) => {
+  try {
+    await connectMongoDB(); // connect to database
+    
+    const { calendars: calendarIDs } = await UserModel.findById(req.session.user); // not sure how to prevent second request
+    
+    const calendars = await CalendarModel.find({ _id: { $in: calendarIDs }}); // find calendars
+
+    if (!calendars) {
+      return res.status(404).json({ message: "Calendars not found" });
+    }
+
+    return res.status(200).json(calendars); // send back calendars
+  } catch (error) {
+    console.error("Error finding calendars:", error);
+    return res.status(500).json({ error: "Failed to find calendars" });
+  }
+})
 // : GET calendar
 //    | implementation notes
 //         > need one for specific id
@@ -260,18 +279,13 @@ app.get('/api/calendar/:id', async (req, res) => {
 // : POST calendar
 app.post('/api/calendar/add', async (req, res) => {
   try {
-    // NOTE: this line can be removed/changed. This supports the creation of a calendar,
-    // but our calendar creator could initially have no dates or subscribers, and the owner
-    // is given inherently by the session
-    const { owner, subscribers, dates } = req.body; // get calendar info
-
     const _id = new mongoose.Types.ObjectId(); // generate id for adding to user purposes and in case of failure of creation
 
     await connectMongoDB(); // connect to database
 
-    await UserModel.updateOne({ _id: req.session.user }, { $addToSet: { calendars: _id.toString() } }) // update user with new calendar
+    await UserModel.updateOne({ _id: req.session.user }, { $addToSet: { calendars: _id } }) // update user with new calendar
 
-    await CalendarModel.create({ _id, owner: req.session.user, subscribers, dates }); // add new calendar
+    await CalendarModel.create({ _id, owner: req.session.user }); // add new calendar
 
     return res.status(201).json({ message: "Calendar added successfully", _id: _id }); // send back message and calendar id
   } catch (error) {
@@ -280,6 +294,9 @@ app.post('/api/calendar/add', async (req, res) => {
   }
 })
 // : PUT calendar
+//    | COULD DELETE!
+//    | Adding dates is where we can update, so this can be the invitation section or
+//    | be replaced by it!
 app.put('/api/calendar/update/:id', async (req, res) => {
   try {
     const { id } = req.params; // get id
@@ -305,11 +322,28 @@ app.delete('/api/calendar/delete/:id', async (req, res) => {
     }
 
     await connectMongoDB(); // connect to database
-    const deletedCalendar = await CalendarModel.findByIdAndDelete(id); // check if calendar
+
+    await UserModel.findByIdAndUpdate(req.session.user, {
+      $pull: {
+        calendars: { _id: id } // delete calendar from user
+      }
+    });
+
+    const deletedCalendar = await CalendarModel.findByIdAndDelete(id); // delete calendar
 
     if (!deletedCalendar) {
       return res.status(404).json({ message: "Calendar not found" }); // if no calendar
     }
+
+    deletedCalendar.subscribers.forEach(async (userId) => {
+
+      await UserModel.findByIdAndUpdate(userId, {
+        $pull: {
+          calendars: { _id: id } // delete calendar from subscribers' list
+        }
+      });
+
+    })
 
     return res.status(200).json({ message: "Calendar deleted" }); // send back message
   } catch (error) {
@@ -321,19 +355,24 @@ app.delete('/api/calendar/delete/:id', async (req, res) => {
 // : POST date
 app.post('/api/date/add', async (req, res) => {
   try {
-    const { calendar, name, date, time, type } = req.body; // get calendar info
+    const { calendar: id, name, date, time, type } = req.body; // get calendar info
 
-    const _id = new mongoose.Types.ObjectId(); // generate id for adding to calendar purposes and in case of failure of creation
+    const _id = new mongoose.Types.ObjectId(); // gen id
 
     await connectMongoDB(); // connect to database
 
     // NOTE: could change this implemenation to not need calendar or add verification from bad actors
     // trying to add bad info to date. Should add verification server side or keep client side?
-    await CalendarModel.updateOne({ calendar }, { $addToSet: { dates: _id.toString() } }) // update calendar with new date
+    await CalendarModel.findByIdAndUpdate(id, {
+      $set: {
+        date_modified: Date.now() // update calendar last modified
+      },
+      $addToSet: {
+        dates: new DateModel({ _id, name, date, time, type }) // add date
+      }
+    });
 
-    await DateModel.create({ _id, calendar, name, date, time, type }); // add new date
-
-    return res.status(201).json({ message: "Date added successfully", _id: _id }); // send back message and date id
+    return res.status(201).json({ message: "Date added successfully", _id }); // send back message
   } catch (error) {
     console.error("Error adding date:", error);
     return res.status(500).json({ error: "Failed to add date" });
@@ -347,7 +386,16 @@ app.put('/api/date/update/:id', async (req, res) => {
 
     await connectMongoDB(); // connect to database
 
-    await DateModel.findByIdAndUpdate(id, { calendar, name, date, time, type }); // update calendar
+    const updatedDate = await CalendarModel.findOneAndUpdate({ _id: calendar, "dates._id": id }, { // find specific calendar with date
+      $set: {
+        date_modified: Date.now(), // update modification time
+        "dates.$": ({ name, date, time, type, date_modified: Date.now() }) // update specific date
+      }
+    }); // update calendar
+
+    if (!updatedDate) {
+      return res.status(404).json({ message: "Date not found" }); // if no calendar
+    }
 
     return res.status(200).json({ message: "Date updated successfully" }); // send back message
   } catch (error) {
@@ -356,16 +404,25 @@ app.put('/api/date/update/:id', async (req, res) => {
   }
 })
 // : DELETE date
-app.delete('/api/date/delete/:id', async (req, res) => {
+app.delete('/api/date/delete/:calendar/:id', async (req, res) => {
   try {
-    const { id } = req.params; // get id
+    const { id, calendar } = req.params; // get id
 
     if (!mongoose.Types.ObjectId.isValid(id)) { // if valid id
       return res.status(400).json({ message: "Invalid ID format" });
     }
 
     await connectMongoDB(); // connect to database
-    const deletedDate = await DateModel.findByIdAndDelete(id); // check if calendar
+
+    //console.log(await CalendarModel.findOne({ _id: calendar, "dates._id": id }));
+    const deletedDate = await CalendarModel.findOneAndUpdate({ _id: calendar, "dates._id": id }, { // find calendar with date
+      $set: {
+        date_modified: Date.now(), // update modified time
+      },
+      $pull: {
+        dates: { _id: id } // delete specific date
+      }
+    });
 
     if (!deletedDate) {
       return res.status(404).json({ message: "Date not found" }); // if no calendar

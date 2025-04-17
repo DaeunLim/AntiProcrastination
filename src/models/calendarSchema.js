@@ -1,21 +1,22 @@
 // Require Mongoose
-import { Schema as _Schema, model } from "mongoose";
+import mongoose, { Schema as _Schema, model } from "mongoose";
+import { DateModel } from "./dateSchema";
 
 // Define a schema
 const Schema = _Schema;
 
 const calendarSchema = new Schema({
     owner: {
-        type: String,
+        type: mongoose.ObjectId,
+        ref: 'User',
         required: true,
     },
     subscribers: {
-        type: [String],
-        required: true,
+        type: [mongoose.ObjectId],
+        ref: 'User',
     },
     dates: {
-        type: [String],
-        required: true,
+        type: [DateModel.schema],
     },
     date_modified: {
         type: Date,
