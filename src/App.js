@@ -32,6 +32,7 @@ function App() {
     setCalendars(newCalendars);
   };
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  //
 
 
 
@@ -62,8 +63,6 @@ function App() {
                   <div className="middle-section">
                     <TodoList />
                     <MonthCalendar month={month} year={year} />
-                    <button className="add_calendar_btn" onClick={addCalendar}>+</button>
-
                   </div>
 
                   <div className="right-section">
