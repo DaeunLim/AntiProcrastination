@@ -37,7 +37,7 @@ function Login() {
     return (
         <div className={"LoginForms"}>
             <div>
-            <img src={timelyImage} alt="Timely Logo" className="centered-image" />
+                <img src={loginImage} alt="Login" className="login-image" />
             </div>
             <form action="POST" onSubmit={submit}>
                 <div className={"usernameForm"}>
@@ -58,12 +58,14 @@ function Login() {
                     required={true}
                 />
                 </div>
-                <button type="submit">Login</button>
+                <button className = {'login-button2'} type="submit">Login</button>
             </form>
                 <br />
                 <p>OR</p>
                 <br />
-                <Link to="/signup">Don't have an account? Signup here</Link>
+                <Link  to="/signup">Don't have an account? Signup here</Link>
+                <br />
+                <Link to="/">Return Home</Link>
         </div>
     );
 };

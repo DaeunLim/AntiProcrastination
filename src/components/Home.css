@@ -1,8 +1,5 @@
-/* App.css */
-
-
 /* Main layout structure */
-.App {
+.Home {
   display: flex;
   flex-direction: row;
   min-height: 100vh;
@@ -13,7 +10,7 @@
 
 }
 
-.App-main {
+.Home-main {
 
   display: flex;
   flex-wrap: wrap;
@@ -26,13 +23,13 @@
   transition: margin-left 0.3s ease;
 }
 
-.App-main.shifted {
+.Home-main.shifted {
   margin-left: 240px;
   width: calc(100% - 240px);
 
 }
 
-.main-content {
+.home-main-content {
 
   display: flex;
   flex: 1;
@@ -46,7 +43,7 @@
   margin-top: 5px;
 }
 
-.middle-section {
+.home-middle-section {
   display: flex;
   flex: 2;
   flex-direction: column;
@@ -57,7 +54,7 @@
   padding: 20px;
 }
 
-.add_calendar_btn {
+.home_add_calendar_btn {
   align-self: flex-end;
   margin-top: auto;
   bottom: 30px;
@@ -71,7 +68,7 @@
   cursor: pointer;
 }
 
-.right-section {
+.home-right-section {
   flex: 1;
   padding: 20px;
   width: 30%;
@@ -79,17 +76,17 @@
   border: 2px solid gray;
 }
 
-.middle-section .todo-list {
+.home-middle-section .todo-list {
   padding-left: 20px;
 }
 
 @media screen and (max-width:1000px) {
-  .main-content {
+  .home-main-content {
     flex-direction: column;
   }
 
-  .middle-section,
-  .right-section {
+  .home-middle-section,
+  .home-right-section {
     width: 100%;
   }
 }

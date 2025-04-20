@@ -8,7 +8,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <img src={timelyImage} alt="Timely Logo" className="centered-image" />
-        <h1 className="title">Welcome to Timely!</h1>
+        <h1 className="title">Welcome to Timely</h1>
         <h2 className="about">Timely is an anti-procrastination application. Improve your 
           productivity through an interactive calendar, task manager, and competitive leaderboard.
         </h2>
@@ -18,6 +18,10 @@ function App() {
           </Link>
           <Link to="/signup">
             <button className="signup-button">Signup</button>
+          </Link>
+          {/* Test Button to Navigate to /home */}
+          <Link to="/home">
+            <button className="test-button">Go to Home</button>
           </Link>
         </div>
       </header>
