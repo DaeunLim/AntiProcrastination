@@ -20,6 +20,19 @@ module.exports = {
         test: /\.css$/, // This will include .css files
         use: ['style-loader', 'css-loader'], // Use style-loader and css-loader for CSS
       },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'images/',
+              publicPath: 'images/',
+            },
+          },
+        ],
+      },
     ],
   },
   resolve: {

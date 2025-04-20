@@ -6,14 +6,14 @@ import TodoList from './components/TodoList/TodoList'; // Todo List component
 import SocialBox from './components/SocialBox'; // Social Box component
 import MonthCalendar from './components/MonthCalendar/MonthCalendar'; // Small calendar
 import MainCalendar from './components/MainCalendar/MainCalendar'; // Full calendar
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom'; // React Router
 
 function App() {
   const currentDate = new Date();
   const month = currentDate.getMonth(); // Current month (0-11)
   const year = currentDate.getFullYear(); // Current year
-
+const navigate = useNavigate();
   //Sidebar
   const [calendars, setCalendars] = useState(['Calendar']);
   const [selectedCalendar, setSelectedCalendar] = useState('Calendar 01');
@@ -34,7 +34,6 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
 
-
   return (
     //<Router> --deleted since the render is wrapped in <BrowserRouter>
       <div className="App">
@@ -53,6 +52,8 @@ function App() {
 
         {/* Main Content */}
         <div className={`App-main ${sidebarOpen ? 'shifted' : ''}`}>
+        {/* Using useNavigate */}
+  
           <Routes>
             {/* Main Page - Only show this route when we are on "/" */}
             <Route
@@ -81,6 +82,7 @@ function App() {
                   />
                 </div>
               } />
+          
           </Routes>
         </div>
       </div>
