@@ -8,8 +8,55 @@ h3 {
 }
 .LoginForms {
     display: flex;
-    justify-content: center;
-    min-height: 110vh;
-    align-items: center;
-    text-align: center;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: center; /* Center elements horizontally */
+    justify-content: center; /* Center elements vertically */
+    height: 100vh; /* Full viewport height */
+    font-family: Arial, sans-serif;
+}
+
+.usernameForm,
+.passwordForm {
+    margin-bottom: 20px; /* Add spacing between input fields */
+    width: 100%; /* Make inputs take full width */
+    max-width: 300px; /* Limit the width of the inputs */
+}
+
+input {
+    width: 100%; /* Make inputs take full width */
+    padding: 10px; /* Add padding inside the input fields */
+    font-size: 16px; /* Increase font size for better readability */
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 5px; /* Add rounded corners */
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
+}
+
+button {
+    padding: 10px 20px; /* Add padding to the button */
+    font-size: 16px; /* Increase font size */
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Add rounded corners */
+    cursor: pointer; /* Add pointer cursor on hover */
+    display: block; /* Make the button a block element */
+    margin: 20px auto; /* Center the button horizontally */
+}
+
+button:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+p {
+    margin: 10px 0; /* Add spacing around the "OR" text */
+    text-align: center; /* Center the text */
+}
+
+a {
+    color: #008CBA; /* Blue link color */
+    text-decoration: none; /* Remove underline */
+}
+
+a:hover {
+    text-decoration: underline; /* Add underline on hover */
 }

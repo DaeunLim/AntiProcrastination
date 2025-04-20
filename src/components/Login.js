@@ -3,7 +3,8 @@ import ReactDOM from "react-dom";
 import axios from 'axios';
 import { BrowserRouter, Routes, Route, Link, useNavigate} from "react-router-dom";
 import "./Login.css";
-import Signup from "../components/Signup";
+import Signup from "./Signup";
+import loginImage from './login.jpg';
 
 function Login() {
     const [username, setUsername] = useState("");
@@ -36,7 +37,7 @@ function Login() {
     return (
         <div className={"LoginForms"}>
             <div>
-                <h2>Login</h2>
+            <img src={timelyImage} alt="Timely Logo" className="centered-image" />
             </div>
             <form action="POST" onSubmit={submit}>
                 <div className={"usernameForm"}>
