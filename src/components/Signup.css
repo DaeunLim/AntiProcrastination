@@ -61,3 +61,9 @@ a:hover {
     height: auto; /* Maintain aspect ratio */
     margin-bottom: 20px; /* Add spacing below the image */
 }
+
+.logo{
+    width: 100px; /* Set a fixed width for the logo */
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 20px; /* Add spacing below the logo */
+}
