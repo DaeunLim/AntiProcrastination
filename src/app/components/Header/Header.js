@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import './Header.css';
-
+import {Link} from 'react-router-dom';
+import timelyLogo from '../../timely.jpg'; // Import your logo image
 function Header({ onMenuClick }) {
   return (
     <header>
@@ -8,10 +9,10 @@ function Header({ onMenuClick }) {
 
       <div className="header_container">
           {/* You can add an actual logo image here */}
-
+        <img src={timelyLogo} alt="Timely Logo" className="logo" />
         <button id="btn_more" aria-label="Menu" onClick={onMenuClick}></button>
         <ul id="top_nav">
-          <li><a href=""><span>Login</span></a></li>
+          <li><Link to="/"><span>Log out</span></Link></li>
         </ul>
       </div>
     </header>

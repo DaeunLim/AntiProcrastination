@@ -1,7 +1,7 @@
 /* Header.css */
 button {
   border: none;
-  background-color: transparent;
+  background-color: black;
 }
 
 a {
@@ -11,6 +11,9 @@ a {
 
 ul {
   list-style: none;
+  margin-left: auto; /* Pushes the ul to the far right */
+  display: flex; /* Ensures the items inside ul are aligned properly */
+  justify-content: right; /* Aligns the items inside ul to the right */
 }
 
 header {
@@ -30,6 +33,7 @@ header {
   height: 72px;
   background-color: bisque;
   border-bottom: 1px solid rgb(0, 0, 0);
+  padding-left: 0px;
 
 }
 
@@ -39,9 +43,8 @@ header {
   position: fixed;
   width: 90%;
   height: 50px;
-  padding: 16px 30px;
+  padding: 10px 10px;
   align-items: center;
-  justify-content: space-between;
   z-index: 1;
 }
 
@@ -60,4 +63,11 @@ header {
 
 .header_container>#top_nav span {
   padding: 5px;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 180px;
 }
