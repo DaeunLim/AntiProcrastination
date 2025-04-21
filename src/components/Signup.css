@@ -1,12 +1,4 @@
-h3 {
-    font-family: "Modak", system-ui
-}
-.modak-regular {
-    font-family: "Modak", system-ui;
-    font-weight: 400;
-    font-style: normal;
-}
-.LoginForms {
+.SignupForms {
     display: flex;
     flex-direction: column; /* Stack elements vertically */
     align-items: center; /* Center elements horizontally */
@@ -17,11 +9,12 @@ h3 {
 }
 
 .usernameForm,
-.passwordForm {
+.emailForm,
+.passwordForm,
+.confirmPasswordForm {
     margin-bottom: 20px; /* Add spacing between input fields */
     width: 100%; /* Make inputs take full width */
     max-width: 300px; /* Limit the width of the inputs */
-    border-width: 5px;
 }
 
 input {
@@ -33,7 +26,7 @@ input {
     box-sizing: border-box; /* Ensure padding doesn't affect width */
 }
 
-.login-button2 {
+.signup-button2 {
     padding: 10px 20px; /* Add padding to the button */
     font-size: 16px; /* Increase font size */
     background-color: #a55141; /* Green background */
@@ -45,7 +38,7 @@ input {
     margin: 20px auto; /* Center the button horizontally */
 }
 
-.login-button2:hover {
+.signup-button2:hover {
     background-color: #932a22; /* Darker green on hover */
 }
 
@@ -55,17 +48,22 @@ p {
 }
 
 a {
-    color: #932a22; /* Blue link color */
+    color: #008CBA; /* Blue link color */
     text-decoration: none; /* Remove underline */
 }
 
 a:hover {
     text-decoration: underline; /* Add underline on hover */
 }
-
-.login-image {
+.signup-image {
     width: 150%; /* Make the image responsive */
     max-width: 400px; /* Limit the maximum width of the image */
     height: auto; /* Maintain aspect ratio */
     margin-bottom: 20px; /* Add spacing below the image */
+}
+
+.logo{
+    width: 100px; /* Set a fixed width for the logo */
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 20px; /* Add spacing below the logo */
 }

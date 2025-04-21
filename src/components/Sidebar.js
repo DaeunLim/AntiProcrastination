@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // For navigating to another page
-
+import timelyLogo from '../sidebarTimely.jpg';
 import './Sidebar.css';
 
 
@@ -32,11 +32,8 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
         <div className="drawer_fixed">
           <div className='drawer_app'>
             <div className="logo">
-              {/* You can add an actual logo image here */}
-              <img src="path-to-your-logo.png" alt="Logo" className="logo-img" />
+              <img src= {timelyLogo} alt="Logo" className="logo-img" />
             </div>
-            <h1 className="title">Calendar App</h1>
-
           </div>
 
           <div className="drawer_profile">

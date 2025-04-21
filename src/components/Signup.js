@@ -2,6 +2,8 @@ import React, {useState} from "react";
 import ReactDOM from "react-dom";
 import {BrowserRouter, Routes, useNavigate, Link} from "react-router-dom";
 import axios from "axios";
+import "./Signup.css";
+import signupImage from './signup.jpg';
 
 function Signup() {
     const [username, setUsername] = useState("");
@@ -34,7 +36,7 @@ function Signup() {
 
         <div className={"SignupForms"}>
             <div>
-                <h2>Signup</h2>
+             <img src={signupImage} alt="Signup" className="signup-image" />
             </div>
             <form action="POST" onSubmit={submit}>
                 <div className={"emailForm"}>
@@ -64,12 +66,14 @@ function Signup() {
                         required={true}
                     />
                 </div>
-                <button type="submit">Login</button>
+                <button className = {'signup-button2'} type="submit">Signup</button>
             </form>
             <br />
             <p>OR</p>
             <br />
             <Link to="/login">Already have an account? Login here</Link>
+            <br />
+            <Link to="/">Return Home</Link>
         </div>
     )
 }

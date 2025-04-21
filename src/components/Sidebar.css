@@ -73,7 +73,7 @@ ul {
     align-items: center;
     justify-content: center;
     background-color: #ffd1c7;
-    padding: 16px;
+    padding: 0px;
     border-bottom: 1px solid rgb(0, 0, 0);
 }
 
@@ -81,12 +81,12 @@ ul {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
 
 }
 
 .logo-img {
-    width: 50px;
+    width: 208px;
     /* Adjust the logo size */
     height: auto;
     margin-right: 10px;
