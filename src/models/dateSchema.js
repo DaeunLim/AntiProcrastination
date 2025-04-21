@@ -17,6 +17,11 @@ const dateSchema = new Schema({
         type: String,
         required: true,
     },
+    priority: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
     date_modified: {
         type: Date,
         default: Date.now(),

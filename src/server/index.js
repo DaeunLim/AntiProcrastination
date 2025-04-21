@@ -383,10 +383,7 @@ app.delete('/api/calendar/delete/:id', async (req, res) => {
     await InvitationModel.deleteMany({ _id: { $in: deletedCalendar.invitations } });
 
     // CHANGE FOR ALL
-    // switch subscribers to emails EVERYWHERE
-    // update DateModel to lose time thing
     // add invitation links (CHECK EMAIL WHEN ADDING INVITATION)
-    // ADD MODIFIED TIME
     // check invitations -- removing and adding them w/ invite links
     // invitations could contain name, calendar id, and owner id to prevent pulling ALL invitations
     // so when accepting, can check
@@ -452,7 +449,7 @@ app.delete('/api/calendar/unsubscribe/:id', async (req, res) => {
 // : POST date
 app.post('/api/date/add', async (req, res) => {
   try {
-    const { calendar: id, name, date, type } = req.body; // get calendar info
+    const { calendar: id, name, date, type, priority } = req.body; // get calendar info
 
     const _id = new mongoose.Types.ObjectId(); // gen id
 
@@ -465,7 +462,7 @@ app.post('/api/date/add', async (req, res) => {
         date_modified: Date.now() // update calendar last modified
       },
       $addToSet: {
-        dates: new DateModel({ _id, name, date, type }) // add date
+        dates: new DateModel({ _id, name, date, type, priority }) // add date
       }
     });
 
@@ -479,14 +476,14 @@ app.post('/api/date/add', async (req, res) => {
 app.put('/api/date/update/:id', async (req, res) => {
   try {
     const { id } = req.params; // get id
-    const { calendar, name, date, type } = req.body; // get calendar info
+    const { calendar, name, date, type, priority } = req.body; // get calendar info
 
     await connectMongoDB(); // connect to database
 
     const updatedDate = await CalendarModel.findOneAndUpdate({ _id: calendar, "dates._id": id }, { // find specific calendar with date
       $set: {
         date_modified: Date.now(), // update modification time
-        "dates.$": ({ name, date, type, date_modified: Date.now() }) // update specific date
+        "dates.$": ({ name, date, type, priority, date_modified: Date.now() }) // update specific date
       }
     }); // update calendar
 
