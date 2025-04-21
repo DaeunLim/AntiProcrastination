@@ -13,10 +13,6 @@ const dateSchema = new Schema({
         type: Date,
         required: true,
     },
-    time: {
-        type: Number,
-        required: true,
-    },
     type: {
         type: String,
         required: true,

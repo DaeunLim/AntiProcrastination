@@ -9,6 +9,7 @@ import cors from 'cors';
 import bcrypt from "bcryptjs";
 import session from 'express-session';
 import connectMongoDBSession from 'connect-mongodb-session';
+import { InvitationModel } from '../models/invitationSchema.js';
 
 
 require('dotenv').config() // get .env variables
@@ -153,7 +154,13 @@ app.get('/api/user/verify', isAuthenticated, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     // send back user info
-    res.status(200).json({ _id: user._id, username: user.username, email: user.email, calendars: user.calendars });
+    res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      calendars: user.calendars,
+      invitations: user.invitations
+    });
   } catch (error) {
     console.error("Error verifying session:", error);
     res.status(500).json({ error: 'Internal server error' });
@@ -234,10 +241,10 @@ app.get('/api/user/logout', isAuthenticated, (req, res) => {
 app.get('/api/calendar/', async (req, res) => {
   try {
     await connectMongoDB(); // connect to database
-    
+
     const { calendars: calendarIDs } = await UserModel.findById(req.session.user); // not sure how to prevent second request
-    
-    const calendars = await CalendarModel.find({ _id: { $in: calendarIDs }}); // find calendars
+
+    const calendars = await CalendarModel.find({ _id: { $in: calendarIDs } }); // find calendars
 
     if (!calendars) {
       return res.status(404).json({ message: "Calendars not found" });
@@ -247,6 +254,31 @@ app.get('/api/calendar/', async (req, res) => {
   } catch (error) {
     console.error("Error finding calendars:", error);
     return res.status(500).json({ error: "Failed to find calendars" });
+  }
+})
+// : GET invitations (same as GET many)
+app.get('/api/calendar/invitations/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // get id
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) { // check id
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    await connectMongoDB(); // connect to database
+
+    const { invitations: invitationIDs } = await CalendarModel.findById(id); // not sure how to prevent second request
+
+    const invitations = await InvitationModel.find({ _id: { $in: invitationIDs } }); // find invitations
+
+    if (!invitations) {
+      return res.status(404).json({ message: "Invitations not found" });
+    }
+
+    return res.status(200).json(invitations); // send back invitations
+  } catch (error) {
+    console.error("Error finding invitations:", error);
+    return res.status(500).json({ error: "Failed to find invitations" });
   }
 })
 // : GET calendar
@@ -264,7 +296,7 @@ app.get('/api/calendar/:id', async (req, res) => {
 
     await connectMongoDB(); // connect to database
 
-    const calendar = await CalendarModel.findOne({ _id: id }); // find calendar
+    const calendar = await CalendarModel.findById(id); // find calendar
 
     if (!calendar) {
       return res.status(404).json({ message: "Calendar not found" });
@@ -279,13 +311,22 @@ app.get('/api/calendar/:id', async (req, res) => {
 // : POST calendar
 app.post('/api/calendar/add', async (req, res) => {
   try {
+    const { name } = req.body;
+
     const _id = new mongoose.Types.ObjectId(); // generate id for adding to user purposes and in case of failure of creation
 
     await connectMongoDB(); // connect to database
 
-    await UserModel.updateOne({ _id: req.session.user }, { $addToSet: { calendars: _id } }) // update user with new calendar
+    await UserModel.findByIdAndUpdate(req.session.user, {
+      $set: {
+        date_modified: Date.now() // update calendar last modified
+      },
+      $addToSet: {
+        calendars: _id
+      }
+    }) // update user with new calendar
 
-    await CalendarModel.create({ _id, owner: req.session.user }); // add new calendar
+    await CalendarModel.create({ _id, name, owner: req.session.user }); // add new calendar
 
     return res.status(201).json({ message: "Calendar added successfully", _id: _id }); // send back message and calendar id
   } catch (error) {
@@ -297,14 +338,15 @@ app.post('/api/calendar/add', async (req, res) => {
 //    | COULD DELETE!
 //    | Adding dates is where we can update, so this can be the invitation section or
 //    | be replaced by it!
+//    | Do we want this or want the /subscribe and /unsubscribe routes?
 app.put('/api/calendar/update/:id', async (req, res) => {
   try {
     const { id } = req.params; // get id
-    const { owner, subscribers, dates } = req.body; // get calendar info
+    const { name, owner, subscribers, dates } = req.body; // get calendar info
 
     await connectMongoDB(); // connect to database
 
-    await CalendarModel.findByIdAndUpdate(id, { owner, subscribers, dates }); // update calendar
+    await CalendarModel.findByIdAndUpdate(id, { name, owner, subscribers, dates }); // update calendar
 
     return res.status(200).json({ message: "Calendar updated successfully" }); // send back message
   } catch (error) {
@@ -312,7 +354,7 @@ app.put('/api/calendar/update/:id', async (req, res) => {
     return res.status(500).json({ error: "Failed to update calendar" });
   }
 })
-// : DELETE calendar
+// : DELETE calendar (owner)
 app.delete('/api/calendar/delete/:id', async (req, res) => {
   try {
     const { id } = req.params; // get id
@@ -324,8 +366,11 @@ app.delete('/api/calendar/delete/:id', async (req, res) => {
     await connectMongoDB(); // connect to database
 
     await UserModel.findByIdAndUpdate(req.session.user, {
+      $set: {
+        date_modified: Date.now() // update calendar last modified
+      },
       $pull: {
-        calendars: { _id: id } // delete calendar from user
+        calendars: id // delete calendar from user
       }
     });
 
@@ -335,15 +380,28 @@ app.delete('/api/calendar/delete/:id', async (req, res) => {
       return res.status(404).json({ message: "Calendar not found" }); // if no calendar
     }
 
-    deletedCalendar.subscribers.forEach(async (userId) => {
+    await InvitationModel.deleteMany({ _id: { $in: deletedCalendar.invitations } });
 
-      await UserModel.findByIdAndUpdate(userId, {
-        $pull: {
-          calendars: { _id: id } // delete calendar from subscribers' list
-        }
-      });
-
-    })
+    // CHANGE FOR ALL
+    // switch subscribers to emails EVERYWHERE
+    // update DateModel to lose time thing
+    // add invitation links (CHECK EMAIL WHEN ADDING INVITATION)
+    // ADD MODIFIED TIME
+    // check invitations -- removing and adding them w/ invite links
+    // invitations could contain name, calendar id, and owner id to prevent pulling ALL invitations
+    // so when accepting, can check
+    // could be its own schema -- ask group if they would like that or if it can be s aved for later
+    await UserModel.updateMany({ $or: { email: { $in: deletedCalendar.subscribers }, invitations: { $in: deletedCalendar.invitations } } }, {
+      $set: {
+        date_modified: Date.now() // update subscriber last modified
+      },
+      $pull: {
+        calendars: id // delete calendar from subscribers' list
+      },
+      $pull: {
+        invitations: deletedCalendar.invitations // delete invitation
+      }
+    });
 
     return res.status(200).json({ message: "Calendar deleted" }); // send back message
   } catch (error) {
@@ -351,11 +409,50 @@ app.delete('/api/calendar/delete/:id', async (req, res) => {
     return res.status(500).json({ error: "Failed to delete calendar" });
   }
 })
+// : DELETE calendar (subscriber)
+app.delete('/api/calendar/unsubscribe/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // get id
+
+    if (!mongoose.Types.ObjectId.isValid(id)) { // if valid id
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    await connectMongoDB(); // connect to database
+
+    const user = await UserModel.findByIdAndUpdate(req.session.user, {
+      $set: {
+        date_modified: Date.now() // update calendar last modified
+      },
+      $pull: {
+        calendars: id // delete calendar from user
+      }
+    });
+
+    const unsubscribedUser = await CalendarModel.findByIdAndUpdate(id, {
+      $set: {
+        date_modified: Date.now() // update calendar last modified
+      },
+      $pull: {
+        subscribers: user.email // delete user
+      }
+    }); // delete user
+
+    if (!unsubscribedUser) {
+      return res.status(404).json({ message: "User not found" }); // if no calendar
+    }
+
+    return res.status(200).json({ message: "Unsubscribed from calendar" }); // send back message
+  } catch (error) {
+    console.error("Error unsubscribing from calendar:", error);
+    return res.status(500).json({ error: "Failed to unsubscribe from calendar" });
+  }
+})
 // /api/date/
 // : POST date
 app.post('/api/date/add', async (req, res) => {
   try {
-    const { calendar: id, name, date, time, type } = req.body; // get calendar info
+    const { calendar: id, name, date, type } = req.body; // get calendar info
 
     const _id = new mongoose.Types.ObjectId(); // gen id
 
@@ -368,7 +465,7 @@ app.post('/api/date/add', async (req, res) => {
         date_modified: Date.now() // update calendar last modified
       },
       $addToSet: {
-        dates: new DateModel({ _id, name, date, time, type }) // add date
+        dates: new DateModel({ _id, name, date, type }) // add date
       }
     });
 
@@ -382,14 +479,14 @@ app.post('/api/date/add', async (req, res) => {
 app.put('/api/date/update/:id', async (req, res) => {
   try {
     const { id } = req.params; // get id
-    const { calendar, name, date, time, type } = req.body; // get calendar info
+    const { calendar, name, date, type } = req.body; // get calendar info
 
     await connectMongoDB(); // connect to database
 
     const updatedDate = await CalendarModel.findOneAndUpdate({ _id: calendar, "dates._id": id }, { // find specific calendar with date
       $set: {
         date_modified: Date.now(), // update modification time
-        "dates.$": ({ name, date, time, type, date_modified: Date.now() }) // update specific date
+        "dates.$": ({ name, date, type, date_modified: Date.now() }) // update specific date
       }
     }); // update calendar
 
@@ -414,7 +511,6 @@ app.delete('/api/date/delete/:calendar/:id', async (req, res) => {
 
     await connectMongoDB(); // connect to database
 
-    //console.log(await CalendarModel.findOne({ _id: calendar, "dates._id": id }));
     const deletedDate = await CalendarModel.findOneAndUpdate({ _id: calendar, "dates._id": id }, { // find calendar with date
       $set: {
         date_modified: Date.now(), // update modified time
@@ -432,6 +528,143 @@ app.delete('/api/date/delete/:calendar/:id', async (req, res) => {
   } catch (error) {
     console.error("Error deleting date:", error);
     return res.status(500).json({ error: "Failed to delete date" });
+  }
+})
+// /api/invite
+// : POST invite
+app.post('/api/invitation/create', async (req, res) => {
+  try {
+    const { calendar, name, to } = req.body; // get id
+
+    await connectMongoDB(); // connect to database
+
+    const invitation = await InvitationModel.create({ _id, calendar, name, to, from: req.session.user });
+
+    await UserModel.findByIdAndUpdate(to, {
+      $set: {
+        date_modified: Date.now() // update calendar last modified
+      },
+      $addToSet: {
+        invitations: invitation._id // add invitation
+      }
+    }); // update user
+
+    await CalendarModel.findByIdAndUpdate(calendar, {
+      $set: {
+        date_modified: Date.now() // update calendar last modified
+      },
+      $addToSet: {
+        invitations: invitation._id // add invitation
+      }
+    }); // update calendar
+
+    return res.status(200).json({ message: "Invitation created successfully" }); // send back message
+  } catch (error) {
+    console.error("Error creating invitation:", error);
+    return res.status(500).json({ error: "Failed to create invitation" });
+  }
+})
+// : GET invitations
+app.get('/api/invitation/', async (req, res) => {
+  try {
+    await connectMongoDB(); // connect to database
+
+    const { invitations: invitationIDs } = await UserModel.findById(req.session.user); // not sure how to prevent second request
+
+    const invitations = await InvitationModel.find({ _id: { $in: invitationIDs } }); // find invitations
+
+    if (!invitations) {
+      return res.status(404).json({ message: "Invitations not found" });
+    }
+
+    return res.status(200).json(invitations); // send back invitations
+  } catch (error) {
+    console.error("Error finding invitations:", error);
+    return res.status(500).json({ error: "Failed to find invitations" });
+  }
+})
+// : DELETE invitation
+app.delete('/api/invitation/delete/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // get id
+
+    if (!mongoose.Types.ObjectId.isValid(id)) { // if valid id
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    await connectMongoDB(); // connect to database
+
+    const deletedInvitation = await InvitationModel.findOneAndDelete(id);
+
+    if (!deletedInvitation) {
+      return res.status(404).json({ message: "Invitation not found" }); // if no calendar
+    }
+
+    await UserModel.findOneAndUpdate(deletedInvitation.to, {
+      $set: {
+        date_modified: Date.now() // update calendar last modified
+      },
+      $pull: {
+        invitations: deletedInvitation._id // delete invitation
+      }
+    }); // update user
+
+    await CalendarModel.findByIdAndUpdate(deletedInvitation.calendar, {
+      $set: {
+        date_modified: Date.now() // update calendar last modified
+      },
+      $pull: {
+        invitations: deletedInvitation._id // delete invitation
+      }
+    }); // update calendar
+
+    return res.status(200).json({ message: "Invitation deleted" }); // send back message
+  } catch (error) {
+    console.error("Error deleting invitation:", error);
+    return res.status(500).json({ error: "Failed to delete invitation" });
+  }
+})
+// : POST invitation
+app.post('/api/invitation/accept/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // get id
+
+    if (!mongoose.Types.ObjectId.isValid(id)) { // if valid id
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    await connectMongoDB(); // connect to database
+
+    const invitation = await InvitationModel.findOneAndDelete(id);
+
+    const user = await UserModel.findByIdAndUpdate(req.session.user, {
+      $set: {
+        date_modified: Date.now() // update calendar last modified
+      },
+      $addToSet: {
+        calendars: invitation.calendar // add calendar
+      },
+      $pull: {
+        invitations: id // delete invitation
+      }
+    }); // update user
+
+    await CalendarModel.findByIdAndUpdate(invitation.calendar, {
+      $set: {
+        date_modified: Date.now() // update calendar last modified
+      },
+      $addToSet: {
+        subscribers: user.email // add user
+      },
+      $pull: {
+        invitations: id // delete invitation
+      }
+    }); // update calendar
+
+    return res.status(200).json({ message: "Invitation accepted successfully" }); // send back message
+  } catch (error) {
+    console.error("Error accepting invitation:", error);
+    return res.status(500).json({ error: "Failed to accept invitation" });
   }
 })
 
