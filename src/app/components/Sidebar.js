@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // For navigating to another page
-import timelyLogo from '../sidebarTimely.jpg';
+import timelyLogo from '../image/sidebarTimely.jpg';
 import './Sidebar.css';
 
 

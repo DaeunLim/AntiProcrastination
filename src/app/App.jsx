@@ -1,7 +1,7 @@
 import './global.css';
 import React from 'react';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
-import timelyImage from './timely.jpg';
+import timelyImage from './image/timely.jpg';
 
 function App() {
   return (

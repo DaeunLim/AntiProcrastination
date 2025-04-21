@@ -4,7 +4,7 @@ import axios from 'axios';
 import { BrowserRouter, Routes, Route, Link, useNavigate} from "react-router-dom";
 import "./Login.css";
 import Signup from "./Signup";
-import loginImage from './login.jpg';
+import loginImage from '../image/login.jpg';
 
 function Login() {
     const [username, setUsername] = useState("");
@@ -15,7 +15,7 @@ function Login() {
     async function submit(e) {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:8080", {username, password})
+            await axios.post("http://localhost:8080/api/user/login", {username, password})
                 .then(res => {
                     if(res.data="Successfully logged in") { //Username is present
                         history("/home",{state:{id:username}}) //Passes email to welcome page

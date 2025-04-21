@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import './Header.css';
 import {Link} from 'react-router-dom';
-import timelyLogo from '../../timely.jpg'; // Import your logo image
+import timelyLogo from '../../image/timely.jpg'; // Import your logo image
 function Header({ onMenuClick }) {
   return (
     <header>

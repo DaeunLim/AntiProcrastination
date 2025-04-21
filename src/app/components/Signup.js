@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import {BrowserRouter, Routes, useNavigate, Link} from "react-router-dom";
 import axios from "axios";
 import "./Signup.css";
-import signupImage from './signup.jpg';
+import signupImage from '../image/signup.jpg';
 
 function Signup() {
     const [username, setUsername] = useState("");
@@ -13,7 +13,7 @@ function Signup() {
     async function submit(e) {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:8080/Signup", {username, password})
+            await axios.post("http://localhost:8080/api/user/signup", {username, email, password})
                 .then(res => {
                     if(res.data="Email already used for an existing account") { //Email already signed up
                         alert("Email already used for an existing account")
