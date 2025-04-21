@@ -17,7 +17,7 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
     };
 
     return (
-        <div className="add-task">
+        <div className="add-tasks">
             <div className="add-task-title">
                 <h3>Add New Task</h3>
                 <input

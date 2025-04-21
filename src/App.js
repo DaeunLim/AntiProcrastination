@@ -14,6 +14,8 @@ function App() {
   const month = currentDate.getMonth(); // Current month (0-11)
   const year = currentDate.getFullYear(); // Current year
 
+  console.log("App.js Month:", month, "Year:", year);
+
   //Sidebar
   const [calendars, setCalendars] = useState(['Calendar']);
   const [selectedCalendar, setSelectedCalendar] = useState('Calendar 01');

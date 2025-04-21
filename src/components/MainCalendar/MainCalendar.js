@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import './MainCalendar.css';
-import PopupBox from '../../PopupBox/PopupBox';
-import MiddlePopupBox from '../../middlePopupBox/middlePopupBox';
-
+import PopupBox from '../PopupBox/PopupBox';
+import MiddlePopupBox from '../middlePopupBox/middlePopupBox';
 
 const MainCalendar = ({ month, year }) => {
+  console.log("Month:", month, "Year:", year); // month와 year 값 확인
+
   const [selectedDate, setSelectedDate] = useState(null);
   const [popupBox, setPopupBox] = useState({ x:0, y:0 });
   const [taskByDate, setTaskByDate] = useState({});
   const [middlePopup, setMiddlePopup] = useState(false);
+  
 
   // Function to get the first day of the month (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
   const getFirstDayOfMonth = (year, month) => {
@@ -156,12 +158,12 @@ const MainCalendar = ({ month, year }) => {
             handleAddingTask(getDate(selectedDate.day, selectedDate.month, selectedDate.year), task) }
         />
         )}
-        {showAddPopup && (
+        {middlePopup && (
           <MiddlePopupBox
             onAddTask={(date, taskObj) => handleAddingTask(date, taskObj)}
             onClose={() => setMiddlePopup(false)}
           />
-)}
+        )}
         <button onClick={() => setMiddlePopup(true)} className="open-middle-popup">+</button>
 
     </div>
