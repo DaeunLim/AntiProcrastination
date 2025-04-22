@@ -1,0 +1,44 @@
+.add-tasks {
+    position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.add-task-title {
+    background: #fffbe6;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.add-task-title input,
+.add-task-title select {
+    width: 100%;
+  margin: 8px 0;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.add-task-title button {
+    margin-top: 10px;
+  margin-right: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-task-title .close-button {
+    background-color: #ccc;
+}
