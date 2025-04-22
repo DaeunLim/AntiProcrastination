@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './MiddlePopupBox.css';
+import './middlePopupBox.css';
 
 const MiddlePopupBox = ({ onAddTask, onClose }) => {
     const [date, setDate] = useState('');

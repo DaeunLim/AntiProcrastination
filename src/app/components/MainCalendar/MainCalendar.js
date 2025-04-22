@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './MainCalendar.css';
-import PopupBox from '../PopupBox/PopupBox';
-import MiddlePopupBox from '../middlePopupBox/middlePopupBox';
+import PopupBox from '../../../components/PopupBox/PopupBox';
+import MiddlePopupBox from "../../../components/MiddlePopupBox/MiddlePopupBox";
 
 const MainCalendar = ({ month, year }) => {
   console.log("Month:", month, "Year:", year); // month와 year 값 확인
