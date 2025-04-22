@@ -335,18 +335,15 @@ app.post('/api/calendar/add', async (req, res) => {
   }
 })
 // : PUT calendar
-//    | COULD DELETE!
-//    | Adding dates is where we can update, so this can be the invitation section or
-//    | be replaced by it!
-//    | Do we want this or want the /subscribe and /unsubscribe routes?
+//    | use this for removing subscribers and changing the calendar name
 app.put('/api/calendar/update/:id', async (req, res) => {
   try {
     const { id } = req.params; // get id
-    const { name, owner, subscribers, dates } = req.body; // get calendar info
+    const { name, subscribers } = req.body; // get calendar info
 
     await connectMongoDB(); // connect to database
 
-    await CalendarModel.findByIdAndUpdate(id, { name, owner, subscribers, dates }); // update calendar
+    await CalendarModel.findByIdAndUpdate(id, { name, subscribers }); // update calendar
 
     return res.status(200).json({ message: "Calendar updated successfully" }); // send back message
   } catch (error) {
@@ -382,12 +379,6 @@ app.delete('/api/calendar/delete/:id', async (req, res) => {
 
     await InvitationModel.deleteMany({ _id: { $in: deletedCalendar.invitations } });
 
-    // CHANGE FOR ALL
-    // add invitation links (CHECK EMAIL WHEN ADDING INVITATION)
-    // check invitations -- removing and adding them w/ invite links
-    // invitations could contain name, calendar id, and owner id to prevent pulling ALL invitations
-    // so when accepting, can check
-    // could be its own schema -- ask group if they would like that or if it can be s aved for later
     await UserModel.updateMany({ $or: { email: { $in: deletedCalendar.subscribers }, invitations: { $in: deletedCalendar.invitations } } }, {
       $set: {
         date_modified: Date.now() // update subscriber last modified
@@ -535,7 +526,9 @@ app.post('/api/invitation/create', async (req, res) => {
 
     await connectMongoDB(); // connect to database
 
-    const invitation = await InvitationModel.create({ _id, calendar, name, to, from: req.session.user });
+    const { from } = await UserModel.findById(req.session.user);
+
+    const invitation = await InvitationModel.create({ _id, calendar, name, to, from });
 
     await UserModel.findByIdAndUpdate(to, {
       $set: {
