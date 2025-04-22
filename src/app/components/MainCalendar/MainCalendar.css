@@ -1,11 +1,16 @@
 /* src/components/MonthCalendar.css */
+.main-page {
+  display: flex;
+  flex-direction: row;
+  margin: 10px;
+}
+
 .main-calendar {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin: 10px;
-    width: 80vw;
-    height: 80vh;
+    width: 70vw;
     box-sizing: border-box;
   }
   
@@ -41,7 +46,7 @@
     background-color: lightgray;
     border-radius: 10px;
     position: relative; /* Ensure tasks/events are positioned correctly inside */
-    height: 80px; /* Increase the height to give more space */
+    height: 73px; /* Increase the height to give more space */
     display: flex;
     flex-direction: column; /* Stack content vertically */
     justify-content: flex-start;
@@ -62,3 +67,44 @@
     background-color: lightblue;
   }
   
+  .task-view {
+    font-size: 0.7rem;
+    color: #555;
+    max-height: 3em;
+    overflow: hidden;
+  }
+
+  .task-bullet {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .add_calendar_btn {
+    align-self: flex-start;
+    margin-top: auto;
+    bottom: 30px;
+    right: 40px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #ccc;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .open-middle-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4caf50;
+    color: white;
+    font-size: 24px;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
