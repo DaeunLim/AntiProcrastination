@@ -51,14 +51,14 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
 
           <ul className="drawer_nav">
             <li><a href="">Home</a></li>
-
-            <li><a href="">To-do list</a></li>
-            <li><a href="">Social</a></li>
           </ul>
 
 
         </div>
         <div className="drawer_menu">
+          <div className="calendar-header">
+            <button className="add-calendar-btn" onClick={onAddCalendar}>+</button>
+          </div>
           <ul className="drawer_calendars">
             {calendars.map((name, idx) => (
               <li key={idx}>

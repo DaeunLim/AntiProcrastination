@@ -56,6 +56,18 @@
   padding: 20px;
 }
 
+
+.right-section {
+  flex: 1;
+  padding: 20px;
+  width: 30%;
+  /* Adjust this based on your layout preferences */
+  border: 2px solid gray;
+}
+
+.middle-section .todo-list {
+  padding-left: 20px;
+}
 .add_calendar_btn {
   align-self: flex-end;
   margin-top: auto;
@@ -69,19 +81,6 @@
   border: none;
   cursor: pointer;
 }
-
-.right-section {
-  flex: 1;
-  padding: 20px;
-  width: 30%;
-  /* Adjust this based on your layout preferences */
-  border: 2px solid gray;
-}
-
-.middle-section .todo-list {
-  padding-left: 20px;
-}
-
 @media screen and (max-width:1000px) {
   .main-content {
     flex-direction: column;
