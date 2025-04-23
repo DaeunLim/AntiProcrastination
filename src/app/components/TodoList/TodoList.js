@@ -146,7 +146,7 @@ function TodoList() {
             className="overdue-toggle"
             onClick={() => setShowOverdue(!showOverdue)}
           >
-            {showOverdue ? 'Hide Overdue' : 'Show Overdue'}
+            {showOverdue ? 'Overdue' : 'Overdue'}
           </button>
           <button
             className="add-task-button"
