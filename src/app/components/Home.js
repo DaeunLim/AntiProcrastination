@@ -62,7 +62,6 @@ function Home() {
                 <div className="home-middle-section">
                   <TodoList />
                   <MonthCalendar month={month} year={year} />
-                  <button className="home_add_calendar_btn" onClick={addCalendar}>+</button>
                 </div>
                 <div className="home-right-section">
                   <SocialBox />
