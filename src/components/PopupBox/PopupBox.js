@@ -1,16 +1,23 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import './PopupBox.css';
 
-const PopupBox = ({ day, month, year, position, onClose, tasks, onAddTask }) => {
+const PopupBox = ({ day, month, year, position, onClose, tasks = [], onAddTask, onDeleteTask}) => {
   if (!day) return null;
 
   const [taskInput, setTaskInput] = useState('');
+  const [priority, setPriority] = useState('green');
 
   const handleAddingTask = () => {
     if (taskInput.trim() !== '') {
-      onAddTask(taskInput);
+      onAddTask({ task: taskInput, priority });
       setTaskInput('');
+      setPriority('green');
     }
+  };
+
+  const handleDeleteTask = (indexToDelete) => {
+    const updatedTasks = tasks.filter((_, i) => i !== indexToDelete);
+    onAddTask(updatedTasks); // Replace tasks with updated list
   };
 
   return (
@@ -20,8 +27,9 @@ const PopupBox = ({ day, month, year, position, onClose, tasks, onAddTask }) => 
         position: 'absolute',
         top: position.y + 5,
         left: position.x,
-        background: '#FFFDD0',
+        background: '#ffd1c7',
         width: '300px',
+        borderRadius: '10px',
       }}
     >
       <div className="popup-header">
@@ -33,9 +41,38 @@ const PopupBox = ({ day, month, year, position, onClose, tasks, onAddTask }) => 
           <p>No tasks</p>
         ) : (
           <ul>
-            {tasks.map((task, index) => (
-              <li key={index}>• {task}</li>
-            ))}
+            {tasks.map((taskObj, index) => {
+              const taskText = typeof taskObj === 'string' ? taskObj : taskObj.task;
+              const color = typeof taskObj === 'string' ? 'gray' : taskObj.priority || 'gray';
+
+              return (
+                <li key={index}>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      backgroundColor: color,
+                      marginRight: '6px',
+                    }}
+                  ></span>
+                  {taskText}
+                  <button
+                    onClick={() => onDeleteTask(index)}
+                    style={{
+                      marginLeft: '10px',
+                      color: 'red',
+                      cursor: 'pointer',
+                      background: 'transparent',
+                      border: 'none',
+                    }}
+                  >
+                    ✕
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
@@ -47,13 +84,17 @@ const PopupBox = ({ day, month, year, position, onClose, tasks, onAddTask }) => 
           value={taskInput}
           onChange={(e) => setTaskInput(e.target.value)}
         />
-        <button onClick={handleAddingTask}>Add</button>
+        <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+          <option value="red">High (Red)</option>
+          <option value="orange">Medium (Orange)</option>
+          <option value="green">Low (Green)</option>
+        </select>
       </div>
 
-      <button className="popup-close" onClick={onClose}>Close</button>
-
-
-      
+      <div className="button-arrange">
+        <button className="popup-add" onClick={handleAddingTask}>Add</button>
+        <button className="popup-close" onClick={onClose}>Close</button>
+      </div>
     </div>
   );
 };

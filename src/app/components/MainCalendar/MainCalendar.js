@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import './MainCalendar.css';
 import PopupBox from '../../../components/PopupBox/PopupBox';
 import MiddlePopupBox from "../../../components/MiddlePopupBox/MiddlePopupBox";
+import { useNavigate } from 'react-router-dom';
 
 const MainCalendar = ({ month, year }) => {
+  const navigate = useNavigate();
   console.log("Month:", month, "Year:", year); // month와 year 값 확인
 
   const [selectedDate, setSelectedDate] = useState(null);
@@ -57,6 +59,8 @@ const MainCalendar = ({ month, year }) => {
 
   // Weekdays array (for display)
   const weekdays = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
+  const getDateKey = (day, month, year) => `${year}-${month + 1}-${day}`;
+  
 
   const handleDayClick = (day, event, index) => {
     if (!day) return;
@@ -86,16 +90,27 @@ const MainCalendar = ({ month, year }) => {
     }));
   };
 
+  const handleDeletingTask = (dateKey, taskIndex) => {
+    setTaskByDate((prev) => {
+      const updatedTasks = [...(prev[dateKey] || [])];
+      updatedTasks.splice(taskIndex, 1);
+      return { ...prev, [dateKey]: updatedTasks };
+    });
+  };
+
   const getDate = (day, month, year) => `${year}-${month + 1}-${day}`;
   const closeBox = () => setSelectedDate(null);
 
-  const addCalendar = () => {
-    null;
-  }
+  const handleBackClick = () => {
+    navigate('/home'); // Navigates to the home page (replace '/' with the actual path of your home page if it's different)
+  };
 
   return (
     <div className="main-page">
     <div className="main-calendar">
+      <button className="back-button" onClick={handleBackClick}>&#60;
+      <span className="back-text">home</span>
+      </button>
       <div className="main-calendar-header">
         <span>{`${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`}</span>
       </div>
@@ -152,17 +167,36 @@ const MainCalendar = ({ month, year }) => {
         month={selectedDate.month}
         year={selectedDate.year}
         position={popupBox}
-        onClose={closeBox}
-        tasks={taskByDate[getDate(selectedDate.day, selectedDate.month, selectedDate.year)] || []}
-          onAddTask={(task) =>
-            handleAddingTask(getDate(selectedDate.day, selectedDate.month, selectedDate.year), task) }
+        onClose={() => setSelectedDate(null)}
+          tasks={taskByDate[getDateKey(selectedDate.day, selectedDate.month, selectedDate.year)] || []}
+          onAddTask={(taskObj) =>
+            handleAddingTask(getDateKey(selectedDate.day, selectedDate.month, selectedDate.year), taskObj)
+          }
+          onDeleteTask={(indexToDelete) => {
+            const dateKey = getDate(selectedDate.day, selectedDate.month, selectedDate.year);
+            const updatedTasks = [...(taskByDate[dateKey] || [])];
+            updatedTasks.splice(indexToDelete, 1);
+            setTaskByDate((prev) => ({
+              ...prev,
+              [dateKey]: updatedTasks,
+            }));
+          }}
         />
-        )}
+      )}
         {middlePopup && (
           <MiddlePopupBox
-            onAddTask={(date, taskObj) => handleAddingTask(date, taskObj)}
-            onClose={() => setMiddlePopup(false)}
-          />
+          onAddTask={(dateStr, taskObj) => {
+            // Normalize the date to match your key format (YYYY-M-D)
+            const date = new Date(dateStr);
+            const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+        
+            setTaskByDate((prev) => ({
+              ...prev,
+              [key]: [...(prev[key] || []), taskObj],
+            }));
+          }}
+          onClose={() => setMiddlePopup(false)}
+        />
         )}
         <button onClick={() => setMiddlePopup(true)} className="open-middle-popup">+</button>
 

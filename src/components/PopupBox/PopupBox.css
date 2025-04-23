@@ -1,6 +1,39 @@
 .date-popup {
     animation: fadeIn 0.2s ease-in-out;
+    border-radius: 10px;
+    padding: 16px;
   }
+
+.popup-add {
+  background-color: #fff6f0; /* light green */
+  color: black;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: background-color 0.2s ease;
+}
+
+.popup-close {
+  background-color: #fff6f0; /* light green */
+  color: black;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: background-color 0.2s ease;
+}
+
+.button-arrange {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
   
   @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.95); }
