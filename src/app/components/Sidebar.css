@@ -242,7 +242,6 @@ ul {
 }
 
 .drawer_calendars .rename {
-    background-image: url('../image/rename.png');
     background-size: contain;
     background-repeat: no-repeat;
     width: 16px;
