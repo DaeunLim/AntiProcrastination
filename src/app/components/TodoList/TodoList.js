@@ -3,174 +3,173 @@ import './TodoList.css';
 
 function TodoList() {
   const [todos, setTodos] = useState([
-    { task: 'Task01', due: '2025-04-20', color: 'red', completed: false },
-    { task: 'Task02', due: '2025-04-21', color: 'yellow', completed: false },
-    { task: 'Task03', due: '2025-04-23', color: 'green', completed: false }
+    { task: 'Overdue Task', due: '2025-04-21', completed: false },
+    { task: 'Task01', due: '2025-04-24', completed: false },
+    { task: 'Task02', due: '2025-04-26', completed: false },
+    { task: 'Task 03', due: '2025-05-03', completed: false }
   ]);
 
-  // UI state for new task form
   const [adding, setAdding] = useState(false);
   const [newTask, setNewTask] = useState('');
   const [newDate, setNewDate] = useState('');
-  const [newColor, setNewColor] = useState('green');
+  const [showOverdue, setShowOverdue] = useState(false);
 
-  // Editing state
-  const [editingIndex, setEditingIndex] = useState(null); // editing date
-  const [editingTaskIndex, setEditingTaskIndex] = useState(null); // editing task name
-  const [editedTaskName, setEditedTaskName] = useState('');
+  const [editingTaskIndex, setEditingTaskIndex] = useState(null);
+  const [editedTaskText, setEditedTaskText] = useState('');
+  const [editingDateIndex, setEditingDateIndex] = useState(null);
 
-  // Add a new task
-  const handleAddNew = () => {
-    if (newTask.trim() && newDate) {
-      setTodos([...todos, { task: newTask.trim(), due: newDate, color: newColor, completed: false }]);
-      setNewTask('');
-      setNewDate('');
-      setNewColor('green');
-      setAdding(false);
-    }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const getUrgencyColor = (dueStr) => {
+    const due = new Date(dueStr);
+    due.setHours(0, 0, 0, 0);
+    const diff = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+    if (diff < 0) return 'gray';
+    if (diff <= 1) return 'red';
+    if (diff <= 3) return 'yellow';
+    return 'green';
   };
 
-  // Cycle color for new task
-  const toggleNewColor = () => {
-    setNewColor((prev) =>
-      prev === 'green' ? 'yellow' : prev === 'yellow' ? 'red' : 'green'
-    );
+  const formatDate = (str) => {
+    const date = new Date(str);
+    return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
   };
 
-  // Cycle color for existing task
-  const toggleColor = (originalIndex) => {
-    const nextColor = { green: 'yellow', yellow: 'red', red: 'green' };
-    setTodos((prev) =>
-      prev.map((t, i) =>
-        i === originalIndex ? { ...t, color: nextColor[t.color] } : t
-      )
-    );
+  const getOverdueTodos = () =>
+    todos.map((t, i) => ({ ...t, originalIndex: i }))
+      .filter(t => new Date(t.due) < today && !t.completed);
+
+  const getUpcomingTodos = () => {
+    const colorOrder = { red: 0, yellow: 1, green: 2, gray: 3 };
+
+    // Map todos with index and urgency color
+    const mapped = todos.map((t, i) => ({
+      ...t,
+      originalIndex: i,
+      urgencyColor: getUrgencyColor(t.due)
+    }));
+
+    // Separate completed and not completed
+    const active = mapped.filter(t => new Date(t.due) >= today && !t.completed);
+    const done = mapped.filter(t => new Date(t.due) >= today && t.completed);
+
+    // Sort each by urgency color
+    active.sort((a, b) => colorOrder[a.urgencyColor] - colorOrder[b.urgencyColor]);
+    done.sort((a, b) => colorOrder[a.urgencyColor] - colorOrder[b.urgencyColor]);
+
+    return [...active, ...done];
   };
 
-  // Toggle completion status
-  const toggleComplete = (originalIndex) => {
-    setTodos((prev) =>
-      prev.map((t, i) =>
-        i === originalIndex ? { ...t, completed: !t.completed } : t
-      )
-    );
+
+  const handleAdd = () => {
+    if (!newTask.trim() || !newDate) return;
+    setTodos([...todos, { task: newTask.trim(), due: newDate, completed: false }]);
+    setNewTask('');
+    setNewDate('');
+    setAdding(false);
   };
 
-  // Delete a task
-  const deleteTask = (originalIndex) => {
-    setTodos((prev) => prev.filter((_, i) => i !== originalIndex));
+  const toggleComplete = (index) => {
+    setTodos(prev => prev.map((t, i) => i === index ? { ...t, completed: !t.completed } : t));
   };
 
-  // Update task due date
-  const updateDate = (originalIndex, newDate) => {
-    setTodos((prev) =>
-      prev.map((t, i) =>
-        i === originalIndex ? { ...t, due: newDate } : t
-      )
-    );
-    setEditingIndex(null);
+  const deleteTask = (index) => {
+    setTodos(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Convert YYYY-MM-DD to MM/DD
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const day = `${date.getDate()}`.padStart(2, '0');
-    return `${month}/${day}`;
+  const updateTaskText = (index, value) => {
+    setTodos(prev => prev.map((t, i) => i === index ? { ...t, task: value } : t));
+    setEditingTaskIndex(null);
   };
 
-  // Return sorted todo list:
-  // 1. Uncompleted first
-  // 2. Red > Yellow > Green
-  // 3. Completed tasks last
-  const getSortedTodos = () => {
-    const colorOrder = { red: 0, yellow: 1, green: 2 };
-    return todos
-      .map((t, originalIndex) => ({ ...t, originalIndex })) // preserve original index
-      .sort((a, b) => {
-        if (a.completed !== b.completed) return a.completed ? 1 : -1;
-        return colorOrder[a.color] - colorOrder[b.color];
-      });
+  const updateTaskDate = (index, value) => {
+    setTodos(prev => prev.map((t, i) => i === index ? { ...t, due: value } : t));
+    setEditingDateIndex(null);
   };
+
+  const renderTaskRow = (t, index) => (
+    <li key={index} className={`todo-box ${t.completed ? 'completed' : ''}`}>
+      {editingDateIndex === index ? (
+        <input
+          type="date"
+          className="todo-time-input"
+          value={t.due}
+          autoFocus
+          onChange={(e) => updateTaskDate(index, e.target.value)}
+          onBlur={() => setEditingDateIndex(null)}
+          onKeyDown={(e) => { if (e.key === 'Escape') setEditingDateIndex(null); }}
+        />
+      ) : (
+        <span className="todo-time" onClick={() => setEditingDateIndex(index)}>
+          {formatDate(t.due)}
+        </span>
+      )}
+
+      {editingTaskIndex === index ? (
+        <input
+          type="text"
+          className="todo-task-input"
+          value={editedTaskText}
+          autoFocus
+          onChange={(e) => setEditedTaskText(e.target.value)}
+          onBlur={() => updateTaskText(index, editedTaskText)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') updateTaskText(index, editedTaskText);
+            if (e.key === 'Escape') setEditingTaskIndex(null);
+          }}
+        />
+      ) : (
+        <span className="todo-content" onClick={() => {
+          setEditingTaskIndex(index);
+          setEditedTaskText(t.task);
+        }}>
+          {t.task}
+        </span>
+      )}
+
+      <span className="todo-dot" style={{ backgroundColor: getUrgencyColor(t.due) }}></span>
+
+      <div className="todo-actions">
+        <button onClick={() => toggleComplete(index)}>✔</button>
+        <button onClick={() => deleteTask(index)}>X</button>
+      </div>
+    </li>
+  );
 
   return (
     <div className="todo-container">
-      <div className="todo-header">
-        <h3 className="todo-title">Todo List</h3>
-        <button className="add-task-button" onClick={() => setAdding(true)}>+ Add Task</button>
+      <div className="top-bar">
+        <span className="todo-title">Todo List</span>
+        <div className="top-actions">
+          <button
+            className="overdue-toggle"
+            onClick={() => setShowOverdue(!showOverdue)}
+          >
+            {showOverdue ? 'Overdue' : 'Overdue'}
+          </button>
+          <button
+            className="add-task-button"
+            onClick={() => setAdding(true)}
+          >
+            + Add Task
+          </button>
+        </div>
       </div>
 
+      {showOverdue && (
+        <div className="overdue-popup">
+          <h4>Overdue Tasks</h4>
+          <ul className="todo-list">
+            {getOverdueTodos().length
+              ? getOverdueTodos().map(t => renderTaskRow(t, t.originalIndex))
+              : <li className="overdue-none">No overdue tasks</li>}
+          </ul>
+        </div>
+      )}
+
       <ul className="todo-list">
-        {getSortedTodos().map((item) => (
-          <li key={item.originalIndex} className={`todo-box ${item.completed ? 'completed' : ''}`}>
-            {/* Show date input or formatted date */}
-            {editingIndex === item.originalIndex ? (
-              <input
-                className="todo-time-input"
-                type="date"
-                value={item.due}
-                onChange={(e) => updateDate(item.originalIndex, e.target.value)}
-              />
-            ) : (
-              <span className="todo-time" onClick={() => setEditingIndex(item.originalIndex)}>
-                {formatDate(item.due)}
-              </span>
-            )}
-
-            {/* Show task input or label */}
-            {editingTaskIndex === item.originalIndex ? (
-              <input
-                className="todo-task-input"
-                type="text"
-                value={editedTaskName}
-                autoFocus
-                onChange={(e) => setEditedTaskName(e.target.value)}
-                onBlur={() => {
-                  if (editedTaskName.trim()) {
-                    setTodos((prev) =>
-                      prev.map((t, i) => (i === item.originalIndex ? { ...t, task: editedTaskName } : t))
-                    );
-                  }
-                  setEditingTaskIndex(null);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    setTodos((prev) =>
-                      prev.map((t, i) => (i === item.originalIndex ? { ...t, task: editedTaskName } : t))
-                    );
-                    setEditingTaskIndex(null);
-                  }
-                  if (e.key === 'Escape') setEditingTaskIndex(null);
-                }}
-              />
-            ) : (
-              <span
-                className="todo-content"
-                onClick={() => {
-                  setEditingTaskIndex(item.originalIndex);
-                  setEditedTaskName(item.task);
-                }}
-              >
-                {item.task}
-              </span>
-            )}
-
-            {/* Clickable color circle */}
-            <span
-              className="todo-dot"
-              style={{ backgroundColor: item.color }}
-              onClick={() => toggleColor(item.originalIndex)}
-            />
-
-            {/* Complete & delete buttons */}
-            <div className="todo-actions">
-              <button onClick={() => toggleComplete(item.originalIndex)}>✔</button>
-              <button onClick={() => deleteTask(item.originalIndex)}>X</button>
-            </div>
-          </li>
-        ))}
-
-        {/* New task input row */}
+        {getUpcomingTodos().map(t => renderTaskRow(t, t.originalIndex))}
         {adding && (
           <li className="todo-box new-task">
             <input
@@ -186,12 +185,7 @@ function TodoList() {
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
             />
-            <span
-              className="todo-dot"
-              style={{ backgroundColor: newColor, cursor: 'pointer' }}
-              onClick={toggleNewColor}
-            />
-            <button className="confirm-btn" onClick={handleAddNew}>✔</button>
+            <button className="confirm-btn" onClick={handleAdd}>✔</button>
           </li>
         )}
       </ul>
