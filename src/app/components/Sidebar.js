@@ -81,7 +81,7 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
                     {name}
                   </span>)}
                 <div className="calendar_edit">
-                  <button className="rename" onClick={() => handleRenameStart(idx, name)} />
+                  <div className="rename" onClick={() => handleRenameStart(idx, name)} >✎</div>
                   <button onClick={() => onDeleteCalendar(idx)}>X</button>
                 </div>
 
