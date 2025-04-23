@@ -36,52 +36,52 @@ function Home() {
 
   return (
     //<Router> --deleted since the render is wrapped in <BrowserRouter>
-      <div className="Home">
-        {/* Header and Sidebar */}
+    <div className="Home">
+      {/* Header and Sidebar */}
 
-        <Header onMenuClick={() => setSidebarOpen(true)} />
-        <Sidebar
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          calendars={calendars}
-          onSelectCalendar={(name) => setSelectedCalendar(name)}
-          onAddCalendar={addCalendar}
-          onDeleteCalendar={deleteCalendar}
-          onRenameCalendar={renameCalendar}
-        />
+      <Header onMenuClick={() => setSidebarOpen(true)} />
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        calendars={calendars}
+        onSelectCalendar={(name) => setSelectedCalendar(name)}
+        onAddCalendar={addCalendar}
+        onDeleteCalendar={deleteCalendar}
+        onRenameCalendar={renameCalendar}
+      />
 
-        {/* Main Content */}
-        <div className={`Home-main ${sidebarOpen ? 'shifted' : ''}`}>
+      {/* Main Content */}
+      <div className={`Home-main ${sidebarOpen ? 'shifted' : ''}`}>
         {/* Using useNavigate */}
-  
-          <Routes>
+
+        <Routes>
           <Route
-    index
-    element={
-      <div className="home-main-content">
-        <div className="home-middle-section">
-          <TodoList />
-          <MonthCalendar month={month} year={year} />
-          <button className="home_add_calendar_btn" onClick={addCalendar}>+</button>
-        </div>
-        <div className="home-right-section">
-          <SocialBox />
-        </div>
-      </div>
-    }
-  />
-            <Route
-              path="/calendar"
-              element={
-                <div className="home-main-content">
-                  <MainCalendar month={month} year={year}
-                  />
+            index
+            element={
+              <div className="home-main-content">
+                <div className="home-middle-section">
+                  <TodoList />
+                  <MonthCalendar month={month} year={year} />
+                  <button className="home_add_calendar_btn" onClick={addCalendar}>+</button>
                 </div>
-              } />
-          
-          </Routes>
-        </div>
+                <div className="home-right-section">
+                  <SocialBox />
+                </div>
+              </div>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <div className="home-main-content">
+                <MainCalendar month={month} year={year}
+                />
+              </div>
+            } />
+
+        </Routes>
       </div>
+    </div>
   );
 }
 
