@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // For navigating to another page
 import timelyLogo from '../image/sidebarTimely.jpg';
+import close from '../image/x.png';
+
 import './Sidebar.css';
 
 
@@ -26,13 +28,13 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="drawer_body">
-        <button id="btn_drawer_close" onClick={onClose}></button>
+        <img src={close} id="btn_drawer_close" onClick={onClose}></img>
 
 
         <div className="drawer_fixed">
           <div className='drawer_app'>
             <div className="logo">
-              <img src= {timelyLogo} alt="Logo" className="logo-img" />
+              <img src={timelyLogo} alt="Logo" className="logo-img" />
             </div>
           </div>
 
