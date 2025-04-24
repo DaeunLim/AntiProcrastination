@@ -242,6 +242,7 @@ ul {
 }
 
 .drawer_calendars .rename {
+    margin-top: 4px;
     background-size: contain;
     background-repeat: no-repeat;
     width: 16px;

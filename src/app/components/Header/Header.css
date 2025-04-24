@@ -44,10 +44,9 @@ header {
 .header_container {
   display: flex;
   justify-content: space-between;
-  /* 좌우로 정렬 */
   align-items: center;
   position: fixed;
-  width: 100%;
+  width: 93%;
   height: 50px;
   padding: 10px 20px;
   z-index: 1;
@@ -65,7 +64,7 @@ header {
   width: 20px;
   height: 20px;
   cursor: pointer;
-  margin-left: 12px;
+  margin-right: 24px;
 }
 
 #top_nav>li {

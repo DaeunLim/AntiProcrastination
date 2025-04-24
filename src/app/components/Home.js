@@ -13,9 +13,11 @@ function Home() {
   const currentDate = new Date();
   const month = currentDate.getMonth(); // Current month (0-11)
   const year = currentDate.getFullYear(); // Current year
-  //Sidebar
+
+  //Sidebar & Calendar Status
+  const [activeTab, setActiveTab] = useState(0);
   const [calendars, setCalendars] = useState(['Calendar']);
-  const [selectedCalendar, setSelectedCalendar] = useState('Calendar 01');
+  const [selectedCalendar, setSelectedCalendar] = useState('Calendar');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const addCalendar = () => {
     const newName = `Calendar ${calendars.length + 1}`;
@@ -44,7 +46,10 @@ function Home() {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         calendars={calendars}
-        onSelectCalendar={(name) => setSelectedCalendar(name)}
+        onSelectCalendar={(name) => {
+          const idx = calendars.indexOf(name);
+          if (idx !== -1) setActiveTab(idx);
+        }}
         onAddCalendar={addCalendar}
         onDeleteCalendar={deleteCalendar}
         onRenameCalendar={renameCalendar}
@@ -59,10 +64,34 @@ function Home() {
             index
             element={
               <div className="home-main-content">
+                <TodoList />
+
+                {/* Calendar Tabs */}
                 <div className="home-middle-section">
-                  <TodoList />
-                  <MonthCalendar month={month} year={year} />
+                  <div className="calendar-tabs-wrapper">
+                    <div className="tab-buttons">
+                      {calendars.map((name, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveTab(idx)}
+                          className={idx === activeTab ? 'active-tab' : ''}
+                        >
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+
+                    {calendars.map((name, idx) => (
+                      <div
+                        key={idx}
+                        style={{ display: idx === activeTab ? 'block' : 'none' }}
+                      >
+                        <MonthCalendar month={month} year={year} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
                 <div className="home-right-section">
                   <SocialBox />
                 </div>
