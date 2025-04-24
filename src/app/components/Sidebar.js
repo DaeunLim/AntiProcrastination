@@ -44,12 +44,13 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
             <div className="user_info">
               <p className="username">UserName</p>
               <p className="rank">{'{rank}'}</p>
-              <p className="login">login</p>
             </div>
           </div>
 
           <ul className="drawer_nav">
-            <li><a href="">Home</a></li>
+            <li>
+              <a onClick={() => navigate('/home')}>Home</a>
+            </li>
           </ul>
 
 
@@ -81,7 +82,7 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
                     {name}
                   </span>)}
                 <div className="calendar_edit">
-                  <div className="rename" onClick={() => handleRenameStart(idx, name)} >✎</div>
+                  <div className="rename" onClick={() => handleRenameStart(idx, name)} >🖉</div>
                   <button onClick={() => onDeleteCalendar(idx)}>X</button>
                 </div>
 
