@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 import timelyImage from './image/timely.jpg';
 
-function App() {
+function App({ isVerified }) {
   return (
     <div className="App">
       <header className="App-header">
@@ -13,10 +13,10 @@ function App() {
           productivity through an interactive calendar, task manager, and competitive leaderboard.
         </h2>
         <div className="button-container">
-          <Link to="/login">
+          <Link to={isVerified ? "/home" : "/login"}>
             <button className="login-button">Login</button>
           </Link>
-          <Link to="/signup">
+          <Link to={isVerified ? "/home" : "/signup"}>
             <button className="signup-button">Signup</button>
           </Link>
           {/* Test Button to Navigate to /home */}

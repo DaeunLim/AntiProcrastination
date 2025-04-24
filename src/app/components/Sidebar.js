@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // For navigating to another page
 import timelyLogo from '../image/sidebarTimely.jpg';
+import x from "../image/x.png";
 import './Sidebar.css';
 
 
-function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, onDeleteCalendar, onRenameCalendar }) {
+function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, onDeleteCalendar, onRenameCalendar, user }) {
 
   const [editingIndex, setEditingIndex] = useState(null);
   const [editName, setEditName] = useState('');
@@ -26,7 +27,7 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="drawer_body">
-        <button id="btn_drawer_close" onClick={onClose}></button>
+        <button id="btn_drawer_close" onClick={onClose}><img src={x} width="100%" /></button>
 
 
         <div className="drawer_fixed">
@@ -40,7 +41,7 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
 
             <div className="avatar" />
             <div className="user_info">
-              <p className="username">UserName</p>
+              <p className="username">{user.username}</p>
               <p className="rank">{'{rank}'}</p>
               <p className="login">login</p>
             </div>

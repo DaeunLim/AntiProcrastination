@@ -1,26 +1,32 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import axios from 'axios';
-import { BrowserRouter, Routes, Route, Link, useNavigate} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 import Signup from "./Signup";
 import loginImage from '../image/login.jpg';
 
-function Login() {
+function Login({ isVerified, setVerified }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     //const [email, setEmail] = React.useState("");
 
-    const history=useNavigate();
+    const history = useNavigate();
+    useEffect(() => {
+        if (isVerified) {
+            history("/home")
+        }
+    })
     async function submit(e) {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:8080/api/user/login", {username, password})
+            await axios.post("http://localhost:8080/api/user/login", { username, password }, { withCredentials: true },)
                 .then(res => {
-                    if(res.data="Successfully logged in") { //Username is present
-                        history("/home",{state:{id:username}}) //Passes email to welcome page
+                    if (res.data = "Successfully logged in") { //Username is present
+                        setVerified(true);
+                        history("/home", { state: { id: username } }) //Passes email to welcome page
                     }
-                    else if(res.data="Account does not exist") {
+                    else if (res.data = "Account does not exist") {
                         alert("Account does not exist")
                     }
                 })
@@ -41,31 +47,31 @@ function Login() {
             </div>
             <form action="POST" onSubmit={submit}>
                 <div className={"usernameForm"}>
-                <input
-                    type="text"
-                    placeholder={"Username"}
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required={true}
-                />
+                    <input
+                        type="text"
+                        placeholder={"Username"}
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required={true}
+                    />
                 </div>
                 <div className={"passwordForm"}>
-                <input
-                    type={"password"}
-                    placeholder={"Password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required={true}
-                />
+                    <input
+                        type={"password"}
+                        placeholder={"Password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required={true}
+                    />
                 </div>
-                <button className = {'login-button2'} type="submit">Login</button>
+                <button className={'login-button2'} type="submit">Login</button>
             </form>
-                <br />
-                <p>OR</p>
-                <br />
-                <Link  to="/signup">Don't have an account? Signup here</Link>
-                <br />
-                <Link to="/">Return Home</Link>
+            <br />
+            <p>OR</p>
+            <br />
+            <Link to="/signup">Don't have an account? Signup here</Link>
+            <br />
+            <Link to="/">Return Home</Link>
         </div>
     );
 };

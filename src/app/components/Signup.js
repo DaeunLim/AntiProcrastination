@@ -1,25 +1,30 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import {BrowserRouter, Routes, useNavigate, Link} from "react-router-dom";
+import { BrowserRouter, Routes, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "./Signup.css";
 import signupImage from '../image/signup.jpg';
 
-function Signup() {
+function Signup({ isVerified }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
-    const history=useNavigate();
+    const history = useNavigate();
+    useEffect(() => {
+        if (isVerified) {
+            history("/home")
+        }
+    })
     async function submit(e) {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:8080/api/user/signup", {username, email, password})
+            await axios.post("http://localhost:8080/api/user/signup", { username, email, password })
                 .then(res => {
-                    if(res.data="Email already used for an existing account") { //Email already signed up
+                    if (res.data = "Email already used for an existing account") { //Email already signed up
                         alert("Email already used for an existing account")
                     }
-                    else if(res.data="Account does not exist") {
-                        history("/Home",{state:{id:username}}) //Passes email to welcome page
+                    else if (res.data = "Account does not exist") {
+                        history("/Home", { state: { id: username } }) //Passes email to welcome page
                         alert("Account does not exist")
                     }
                 })
@@ -36,7 +41,7 @@ function Signup() {
 
         <div className={"SignupForms"}>
             <div>
-             <img src={signupImage} alt="Signup" className="signup-image" />
+                <img src={signupImage} alt="Signup" className="signup-image" />
             </div>
             <form action="POST" onSubmit={submit}>
                 <div className={"emailForm"}>
@@ -66,7 +71,7 @@ function Signup() {
                         required={true}
                     />
                 </div>
-                <button className = {'signup-button2'} type="submit">Signup</button>
+                <button className={'signup-button2'} type="submit">Signup</button>
             </form>
             <br />
             <p>OR</p>

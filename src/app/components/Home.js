@@ -9,7 +9,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom'; // React Router
 import './Home.css'; // CSS styles for Home component
 
-function Home() {
+function Home({ setVerified, user }) {
   const currentDate = new Date();
   const month = currentDate.getMonth(); // Current month (0-11)
   const year = currentDate.getFullYear(); // Current year
@@ -39,7 +39,7 @@ function Home() {
       <div className="Home">
         {/* Header and Sidebar */}
 
-        <Header onMenuClick={() => setSidebarOpen(true)} />
+        <Header onMenuClick={() => setSidebarOpen(true)} setVerified={() => setVerified()} />
         <Sidebar
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
@@ -48,6 +48,7 @@ function Home() {
           onAddCalendar={addCalendar}
           onDeleteCalendar={deleteCalendar}
           onRenameCalendar={renameCalendar}
+          user={user}
         />
 
         {/* Main Content */}

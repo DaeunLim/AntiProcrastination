@@ -226,7 +226,6 @@ app.get('/api/user/logout', isAuthenticated, (req, res) => {
     // guard against forms of session fixation
     req.session.regenerate((err) => {
       if (err) next(err)
-      res.redirect('/')
     });
   });
 });
