@@ -10,6 +10,7 @@ const serverConfig = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
+    publicPath: '/'
   },
   module: {
     rules: [
@@ -78,6 +79,7 @@ const clientConfig = {
     static: './dist', // Serve content from the dist folder
     hot: true, // Enable Hot Module Replacement (HMR)
     port: 3000,
+    historyApiFallback: true,
   }
 };
 
