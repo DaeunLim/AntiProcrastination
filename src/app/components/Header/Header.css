@@ -11,9 +11,12 @@ a {
 
 ul {
   list-style: none;
-  margin-left: auto; /* Pushes the ul to the far right */
-  display: flex; /* Ensures the items inside ul are aligned properly */
-  justify-content: right; /* Aligns the items inside ul to the right */
+  margin-left: auto;
+  /* Pushes the ul to the far right */
+  display: flex;
+  /* Ensures the items inside ul are aligned properly */
+  justify-content: right;
+  /* Aligns the items inside ul to the right */
 }
 
 header {
@@ -40,20 +43,27 @@ header {
 /* Container for header and sidebar */
 .header_container {
   display: flex;
-  position: fixed;
-  width: 90%;
-  height: 50px;
-  padding: 10px 10px;
+  justify-content: space-between;
   align-items: center;
+  position: fixed;
+  width: 93%;
+  height: 50px;
+  padding: 10px 20px;
   z-index: 1;
 }
 
-.header_container #btn_more {
-  width: 40px;
-  height: 32px;
-  cursor: pointer;
+.left-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
+.header_container #btn_more {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  margin-right: 24px;
+}
 
 #top_nav>li {
   display: inline-block;
@@ -65,7 +75,5 @@ header {
 
 .logo {
   display: flex;
-  justify-content: center;
-  align-items: center;
   width: 180px;
 }

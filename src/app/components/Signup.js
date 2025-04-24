@@ -18,20 +18,19 @@ function Signup({ isVerified }) {
     async function submit(e) {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:8080/api/user/signup", { username, email, password })
-                .then(res => {
-                    if (res.data = "Email already used for an existing account") { //Email already signed up
-                        alert("Email already used for an existing account")
-                    }
-                    else if (res.data = "Account does not exist") {
-                        history("/Home", { state: { id: username } }) //Passes email to welcome page
-                        alert("Account does not exist")
-                    }
-                })
-                .catch(err => {
-                    alert("Incorrect username or password")
-                    console.log(err);
-                })
+            const res = await fetch("http://localhost:8080/api/user/signup", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, email, password }),
+            })
+
+            if (res.status != 201) { //Email already signed up
+                alert("Email or username already used for an existing account")
+            } else {
+                history("/");
+            }
         }
         catch (e) {
             console.log(e);

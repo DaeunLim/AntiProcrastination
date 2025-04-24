@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // For navigating to another page
 import timelyLogo from '../image/sidebarTimely.jpg';
-import x from "../image/x.png";
+import close from '../image/x.png';
+
 import './Sidebar.css';
 
 
@@ -27,13 +28,13 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="drawer_body">
-        <button id="btn_drawer_close" onClick={onClose}><img src={x} width="100%" /></button>
+        <img src={close} id="btn_drawer_close" onClick={onClose}></img>
 
 
         <div className="drawer_fixed">
           <div className='drawer_app'>
             <div className="logo">
-              <img src= {timelyLogo} alt="Logo" className="logo-img" />
+              <img src={timelyLogo} alt="Logo" className="logo-img" />
             </div>
           </div>
 
@@ -43,12 +44,13 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
             <div className="user_info">
               <p className="username">{user.username}</p>
               <p className="rank">{'{rank}'}</p>
-              <p className="login">login</p>
             </div>
           </div>
 
           <ul className="drawer_nav">
-            <li><a href="">Home</a></li>
+            <li>
+              <a onClick={() => navigate('/home')}>Home</a>
+            </li>
           </ul>
 
 
@@ -80,7 +82,7 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
                     {name}
                   </span>)}
                 <div className="calendar_edit">
-                  <button className="rename" onClick={() => handleRenameStart(idx, name)} />
+                  <div className="rename" onClick={() => handleRenameStart(idx, name)} >✎</div>
                   <button onClick={() => onDeleteCalendar(idx)}>X</button>
                 </div>
 

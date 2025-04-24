@@ -5,7 +5,7 @@
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
-  /* justify-content: space-between; */
+  /*justify-content: space-between; */
   background-color: bisque;
 
 }
@@ -19,64 +19,56 @@
   box-sizing: border-box;
   margin: 68px auto 0px auto;
   flex-direction: row;
-  flex-direction: row;
   transition: margin-left 0.3s ease;
 }
 
 .Home-main.shifted {
   margin-left: 240px;
   width: calc(100% - 240px);
-
 }
 
 .home-main-content {
-
   display: flex;
   flex: 1;
   gap: 20px;
-  flex-direction: row;
+  flex-direction: column;
   width: 100%;
+  align-items: center;
+  justify-content: center;
   /* Adjust this based on your layout preferences */
   flex-wrap: wrap;
   box-sizing: border-box;
   background-color: bisque;
-  margin-top: 5px;
+  margin-top: 20px;
+}
+.todo-container,
+.home-middle-section,
+.home-right-section {
+  width: 75%;
+  margin: 0 auto;
+  min-width: 400px;
+  box-sizing: border-box;
 }
 
 .home-middle-section {
   display: flex;
   flex: 2;
   flex-direction: column;
-  width: 70%;
   /* Adjust this based on your layout preferences */
   gap: 20px;
   border: 2px solid gray;
   padding: 20px;
 }
 
-.home_add_calendar_btn {
-  align-self: flex-end;
-  margin-top: auto;
-  bottom: 30px;
-  right: 40px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #ccc;
-  font-size: 24px;
-  border: none;
-  cursor: pointer;
-}
 
 .home-right-section {
   flex: 1;
   padding: 20px;
-  width: 30%;
   /* Adjust this based on your layout preferences */
   border: 2px solid gray;
 }
 
-.home-middle-section .todo-list {
+.home-main-content .todo-list {
   padding-left: 20px;
 }
 
@@ -86,7 +78,37 @@
   }
 
   .home-middle-section,
-  .home-right-section {
+  .home-right-section
+  .todo-container {
     width: 100%;
   }
+}
+
+/* Calendar Tab design */
+.calendar-tabs-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  padding: 0 10px;
+}
+
+.tab-buttons button {
+  background-color: #ffd1c7;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.tab-buttons .active-tab {
+  background-color: #ff928f;
+  color: white;
 }

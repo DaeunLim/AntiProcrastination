@@ -19,10 +19,6 @@ function App({ isVerified }) {
           <Link to={isVerified ? "/home" : "/signup"}>
             <button className="signup-button">Signup</button>
           </Link>
-          {/* Test Button to Navigate to /home */}
-          <Link to="/home">
-            <button className="test-button">Go to Home</button>
-          </Link>
         </div>
       </header>
     </div>

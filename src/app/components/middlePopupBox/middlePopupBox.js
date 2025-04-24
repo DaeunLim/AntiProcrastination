@@ -8,10 +8,19 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
 
     const handleAddButton = () => {
         if (date && task) {
-            onAddTask(date, { task, priority});
+            // 날짜를 YYYY-MM-DD 형식으로 포맷합니다.
+            const formattedDate = new Date(date);
+            const formattedDateString = formattedDate.toISOString().split('T')[0];  // 2023-04-19 형태로 변환
+
+            // 날짜와 함께 과제를 전달합니다.
+            onAddTask(formattedDateString, { task, priority });
+
+            // 입력 필드 초기화
             setDate('');
             setTask('');
             setPriority('green');
+            
+            // 팝업 닫기
             onClose();
         }
     };
@@ -23,13 +32,13 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
                 <input
                     type="date"
                     value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    onChange={(e) => setDate(e.target.value)} // 날짜 변경 시
                 />
                 <input
                     type="text"
                     placeholder="Task description"
                     value={task}
-                    onChange={(e) => setTask(e.target.value)}
+                    onChange={(e) => setTask(e.target.value)} // 과제 입력 변경 시
                 />
                 <select value={priority} onChange={(e) => setPriority(e.target.value)}>
                     <option value="red">High (Red)</option>
@@ -40,7 +49,7 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
                 <button onClick={onClose} className="close-button">Close</button>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default MiddlePopupBox;

@@ -14,6 +14,7 @@ function Routing() {
     const [ user, setUser ] = useState(defaultUser);
     const [ isVerified, setVerified ] = useState(false);
     const [ wasLoaded, setLoaded ] = useState(false); // on first page load
+    const [ isLoading, setLoading ] = useState(true); // on first page load
     useEffect(() => {
         if (!wasLoaded) {
             const verify = async () => {
@@ -25,6 +26,7 @@ function Routing() {
                     const data = await res.json();
                     setVerified(true);
                     setUser(data);
+                    setLoading(false);
                 }
             }
             verify();
@@ -36,7 +38,7 @@ function Routing() {
             <Route path="/" element={<App isVerified={isVerified} />} />
             <Route path="/login" element={<Login isVerified={isVerified} setVerified={setVerified} />} />
             <Route path="/signup" element={<Signup isVerified={isVerified} />} />
-            <Route path="/home" element={<Home setVerified={setVerified} user={user}/>} />
+            <Route path="/home" element={<Home isLoading={isLoading} isVerified={isVerified} setVerified={setVerified} user={user}/>} />
             <Route path="/calendar" element={<MainCalendar month={month} year={year} />} />
         </Routes>
     )

@@ -54,7 +54,7 @@
   }
 
   .main-calendar-day.today {
-    background-color: #FFB6C1;
+    background-color: #fff6f0;
     color: red;
     font-weight: bold;
   }
@@ -107,4 +107,23 @@
     height: 50px;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+
+  .back-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+  }
+
+  .back-text {
+    margin-left: 5px;
+    font-family: 'Arial', sans-serif;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header/Header'; // Header component
 import Sidebar from './Sidebar';
 import TodoList from './TodoList/TodoList'; // Todo List component
@@ -9,13 +9,15 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom'; // React Router
 import './Home.css'; // CSS styles for Home component
 
-function Home({ setVerified, user }) {
+function Home({ isVerified, setVerified, user }) {
   const currentDate = new Date();
   const month = currentDate.getMonth(); // Current month (0-11)
   const year = currentDate.getFullYear(); // Current year
-  //Sidebar
+
+  //Sidebar & Calendar Status
+  const [activeTab, setActiveTab] = useState(0);
   const [calendars, setCalendars] = useState(['Calendar']);
-  const [selectedCalendar, setSelectedCalendar] = useState('Calendar 01');
+  const [selectedCalendar, setSelectedCalendar] = useState('Calendar');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const addCalendar = () => {
     const newName = `Calendar ${calendars.length + 1}`;
@@ -33,56 +35,81 @@ function Home({ setVerified, user }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   //
 
-
   return (
     //<Router> --deleted since the render is wrapped in <BrowserRouter>
-      <div className="Home">
-        {/* Header and Sidebar */}
+    <div className="Home">
+      {/* Header and Sidebar */}
 
-        <Header onMenuClick={() => setSidebarOpen(true)} setVerified={() => setVerified()} />
-        <Sidebar
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          calendars={calendars}
-          onSelectCalendar={(name) => setSelectedCalendar(name)}
-          onAddCalendar={addCalendar}
-          onDeleteCalendar={deleteCalendar}
-          onRenameCalendar={renameCalendar}
-          user={user}
-        />
+      <Header onMenuClick={() => setSidebarOpen(true)} setVerified={() => setVerified()} />
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        calendars={calendars}
+        onSelectCalendar={(name) => {
+          const idx = calendars.indexOf(name);
+          if (idx !== -1) setActiveTab(idx);
+        }}
+        onAddCalendar={addCalendar}
+        onDeleteCalendar={deleteCalendar}
+        onRenameCalendar={renameCalendar}
+        user={user}
+      />
 
-        {/* Main Content */}
-        <div className={`Home-main ${sidebarOpen ? 'shifted' : ''}`}>
+      {/* Main Content */}
+      <div className={`Home-main ${sidebarOpen ? 'shifted' : ''}`}>
         {/* Using useNavigate */}
-  
-          <Routes>
+
+        <Routes>
           <Route
-    index
-    element={
-      <div className="home-main-content">
-        <div className="home-middle-section">
-          <TodoList />
-          <MonthCalendar month={month} year={year} />
-          <button className="home_add_calendar_btn" onClick={addCalendar}>+</button>
-        </div>
-        <div className="home-right-section">
-          <SocialBox />
-        </div>
-      </div>
-    }
-  />
-            <Route
-              path="/calendar"
-              element={
-                <div className="home-main-content">
-                  <MainCalendar month={month} year={year}
-                  />
+            index
+            element={
+              <div className="home-main-content">
+                <TodoList />
+
+                {/* Calendar Tabs */}
+                <div className="home-middle-section">
+                  <div className="calendar-tabs-wrapper">
+                    <div className="tab-buttons">
+                      {calendars.map((name, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveTab(idx)}
+                          className={idx === activeTab ? 'active-tab' : ''}
+                        >
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+
+                    {calendars.map((name, idx) => (
+                      <div
+                        key={idx}
+                        style={{ display: idx === activeTab ? 'block' : 'none' }}
+                      >
+                        <MonthCalendar month={month} year={year} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              } />
-          
-          </Routes>
-        </div>
+
+                <div className="home-right-section">
+                  <SocialBox />
+                </div>
+              </div>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <div className="home-main-content">
+                <MainCalendar month={month} year={year}
+                />
+              </div>
+            } />
+
+        </Routes>
       </div>
+    </div>
   );
 }
 

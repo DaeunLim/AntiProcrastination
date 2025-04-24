@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import './Header.css';
-import { Link, useNavigate } from 'react-router-dom';
+import {  Link, useNavigate  } from 'react-router-dom';
 import timelyLogo from '../../image/timely.jpg'; // Import your logo image
 import hamburger from '../../image/hamburger.png'; // Import your logo image
 function Header({ onMenuClick, setVerified }) {
@@ -13,11 +13,13 @@ function Header({ onMenuClick, setVerified }) {
   return (
     <header>
       <div className="top_header_bg"></div>
-
       <div className="header_container">
-        {/* You can add an actual logo image here */}
-        <button id="btn_more" aria-label="Menu" onClick={onMenuClick}><img src={hamburger} height="100%" width="100%" /></button>
-        <img src={timelyLogo} alt="Timely Logo" className="logo" />
+        <div className="left-header">
+          <img src={hamburger} id="btn_more" aria-label="Menu" onClick={onMenuClick}></img>
+          <img src={timelyLogo} alt="Timely Logo" className="logo" />
+
+        </div>
+
         <ul id="top_nav">
           <li><Link onClick={() => {
             setVerified(false); logout()
