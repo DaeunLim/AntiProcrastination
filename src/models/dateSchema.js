@@ -22,6 +22,9 @@ const dateSchema = new Schema({
         required: true,
         default: 0,
     },
+    completed_by: {
+        type: [String],
+    },
     date_modified: {
         type: Date,
         default: Date.now(),

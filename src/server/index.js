@@ -466,7 +466,7 @@ app.post('/api/date/add', async (req, res) => {
 app.put('/api/date/update/:id', async (req, res) => {
   try {
     const { id } = req.params; // get id
-    const { calendar, name, date, type, priority } = req.body; // get calendar info
+    const { calendar, name, date, type, priority, completed_by } = req.body; // get calendar info
 
     await connectMongoDB(); // connect to database
 
@@ -480,6 +480,72 @@ app.put('/api/date/update/:id', async (req, res) => {
     if (!updatedDate) {
       return res.status(404).json({ message: "Date not found" }); // if no calendar
     }
+
+    return res.status(200).json({ message: "Date updated successfully" }); // send back message
+  } catch (error) {
+    console.error("Error updating date:", error);
+    return res.status(500).json({ error: "Failed to update date" });
+  }
+})
+// : PUT date
+app.put('/api/date/complete/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // get id
+    const { calendar } = req.body; // get calendar info
+
+    await connectMongoDB(); // connect to database
+    const updatedDate = await CalendarModel.findOneAndUpdate({ _id: calendar, "dates._id": id }, { // find specific calendar with date
+      $addToSet: {
+        "dates.$": ({ completed_by: req.session.user }) // update specific date w/ user ID (can change to email if we want to change it up)
+      },
+      $set: {
+        date_modified: Date.now(), // update modification time
+        "dates.$": ({ date_modified: Date.now() }) // update specific date
+      }
+    }); // update calendar
+
+    if (!updatedDate) {
+      return res.status(404).json({ message: "Date not found" }); // if no calendar
+    }
+
+    await UserModel.findByIdAndUpdate(req.session.user, {
+      $inc: {
+        tasks_completed: 1, // increment tasks completed
+      },
+    })
+
+    return res.status(200).json({ message: "Date updated successfully" }); // send back message
+  } catch (error) {
+    console.error("Error updating date:", error);
+    return res.status(500).json({ error: "Failed to update date" });
+  }
+})
+// : PUT date
+app.put('/api/date/uncomplete/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // get id
+    const { calendar } = req.body; // get calendar info
+
+    await connectMongoDB(); // connect to database
+    const updatedDate = await CalendarModel.findOneAndUpdate({ _id: calendar, "dates._id": id }, { // find specific calendar with date
+      $pull: {
+        "dates.$": ({ completed_by: req.session.user }) // remove specific date w/ user ID (can change to email if we want to change it up)
+      },
+      $set: {
+        date_modified: Date.now(), // update modification time
+        "dates.$": ({ date_modified: Date.now() }) // update specific date
+      }
+    }); // update calendar
+
+    if (!updatedDate) {
+      return res.status(404).json({ message: "Date not found" }); // if no calendar
+    }
+
+    await UserModel.findByIdAndUpdate(req.session.user, {
+      $inc: {
+        tasks_completed: -1, // decrement tasks completed
+      },
+    })
 
     return res.status(200).json({ message: "Date updated successfully" }); // send back message
   } catch (error) {

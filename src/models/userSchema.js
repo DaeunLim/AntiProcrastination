@@ -25,6 +25,10 @@ const userSchema = new Schema({
         type: [mongoose.ObjectId],
         ref: 'Invitation'
     },
+    tasks_completed: {
+        type: Number,
+        default: 0,
+    },
     date_modified: {
         type: Date,
         default: Date.now(),
