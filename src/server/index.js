@@ -159,7 +159,8 @@ app.get('/api/user/verify', isAuthenticated, async (req, res) => {
       username: user.username,
       email: user.email,
       calendars: user.calendars,
-      invitations: user.invitations
+      invitations: user.invitations,
+      tasks_completed: user.tasks_completed,
     });
   } catch (error) {
     console.error("Error verifying session:", error);
