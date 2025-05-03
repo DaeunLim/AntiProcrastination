@@ -91,7 +91,12 @@ const isAuthenticated = (req, res, next) => {
     next(); // next step
   }
 };
-
+const isAuthRedirect = (req, res, next) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  next();
+};
 // API section
 // /api/user/
 // : TODO
@@ -639,6 +644,10 @@ app.get('/api/invitation/', async (req, res) => {
     return res.status(500).json({ error: "Failed to find invitations" });
   }
 })
+app.use('/', isAuthRedirect(req, res, next));
+app.get('/home', isAuthRedirect, async (req, res) => {
+  res.render('home', {user:req.user});
+})
 // : DELETE invitation
 app.delete('/api/invitation/delete/:id', async (req, res) => {
   try {
@@ -728,3 +737,5 @@ app.post('/api/invitation/accept/:id', async (req, res) => {
 app.listen(8080, () => {
   console.log('server listening on port 8080')
 })
+
+
