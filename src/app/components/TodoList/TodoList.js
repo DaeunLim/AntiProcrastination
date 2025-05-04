@@ -64,11 +64,13 @@ function TodoList() {
 
   const handleAdd = () => {
     if (!newTask.trim() || !newDate) return;
-    setTodos([...todos, { task: newTask.trim(), due: newDate, completed: false }]);
+    const normalizedDate = new Date(newDate).toISOString().split('T')[0]; // YYYY-MM-DD
+    setTodos([...todos, { task: newTask.trim(), due: normalizedDate, completed: false }]);
     setNewTask('');
     setNewDate('');
     setAdding(false);
   };
+  
 
   const toggleComplete = (index) => {
     setTodos(prev => prev.map((t, i) => i === index ? { ...t, completed: !t.completed } : t));
@@ -82,11 +84,13 @@ function TodoList() {
     setTodos(prev => prev.map((t, i) => i === index ? { ...t, task: value } : t));
     setEditingTaskIndex(null);
   };
-
+  
   const updateTaskDate = (index, value) => {
-    setTodos(prev => prev.map((t, i) => i === index ? { ...t, due: value } : t));
+    const normalizedDate = new Date(value).toISOString().split('T')[0];
+    setTodos(prev => prev.map((t, i) => i === index ? { ...t, due: normalizedDate } : t));
     setEditingDateIndex(null);
   };
+  
 
   const renderTaskRow = (t, index) => (
     <li key={index} className={`todo-box ${t.completed ? 'completed' : ''}`}>
