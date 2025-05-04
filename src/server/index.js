@@ -197,7 +197,15 @@ app.post('/api/user/login', async (req, res) => {
           req.session.save((err) => {
             if (err) return next(err)
           }); // save
-          return res.status(200).json({ message: "Login successful" }); // send back session
+          return res.status(200).json({ message: "Login successful",
+            user: {
+              _id: user._id,
+              username: user.username,
+              email: user.email,
+              calendars: user.calendars,
+              invitations: user.invitations,
+              tasks_completed: user.tasks_completed,
+            } }); // send back user and session
         }); // regenerate session
       } else {
         return res.status(401).json({ error: "Username or Password is not correct" });

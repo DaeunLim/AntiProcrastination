@@ -22,11 +22,11 @@ function Login({ isVerified, setVerified }) {
         try {
             await axios.post("http://localhost:8080/api/user/login", { username, password }, { withCredentials: true },)
                 .then(res => {
-                    if (res.data = "Successfully logged in") { //Username is present
+                    if (res.status == 200) { // Correct login
                         setVerified(true);
-                        history("/home", { state: { id: username } }) //Passes email to welcome page
+                        history("/home", { state: { user: res.data.user } }) // Passes user
                     }
-                    else if (res.data = "Account does not exist") {
+                    else if (res.status == 404) {
                         alert("Account does not exist")
                     }
                 })
