@@ -8,6 +8,7 @@ import MainCalendar from './MainCalendar/MainCalendar'; // Full calendar
 import { useNavigate, Link, redirect } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom'; // React Router
 import './Home.css'; // CSS styles for Home component
+import axios from 'axios'; // Axios for API requests
 
 function Home({ isLoading, isVerified, setVerified, user }) {
 
@@ -39,10 +40,25 @@ function Home({ isLoading, isVerified, setVerified, user }) {
   };
 
   //sidebar
-  const addCalendar = () => {
-    const newName = `Calendar ${calendars.length + 1}`;
-    setCalendars([...calendars, newName]);
+  const addCalendar = async () => {
+    const newName = `Calendar ${calendars.length + 1}`; // Generate a new calendar name
+  
+    try {
+      // Send a POST request to the backend to add the new calendar
+      const response = await axios.post("http://localhost:8080/api/calendar/add", { name: newName }, { withCredentials: true });
+  
+      if (response.status === 201) {
+        // If the calendar is successfully added to the database, update the local state
+        setCalendars([...calendars, newName]);
+      } else {
+        alert("Failed to add calendar to the database");
+      }
+    } catch (error) {
+      console.error("Error adding calendar:", error);
+      alert("An error occurred while adding the calendar");
+    }
   };
+  
   const deleteCalendar = (index) => {
     const calendarName = calendars[index];
     const confirmed = window.confirm(`Are you sure you want to delete "${calendarName}"? This cannot be undone.`);
