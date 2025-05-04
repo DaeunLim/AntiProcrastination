@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { redirect, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Signup from "./components/Signup";
 const Home = lazy(() => import("./components/Home"));
 const Login = lazy(() => import("./components/Login"));
@@ -44,8 +44,10 @@ function Routing() {
                     <Login isVerified={isVerified} setVerified={setVerified} />
                 </Suspense>} />
             <Route path="/signup" element={<Signup isVerified={isVerified} />} />
--           <Route path="/home" element={<Home isLoading={isLoading} isVerified={isVerified} setVerified={setVerified} user={user} />} />
-            
+            <Route path="/home" element={
+                <Suspense>
+                    <Home isLoading={isLoading} isVerified={isVerified} setVerified={setVerified} user={user} />
+                </Suspense>} />
             <Route path="/calendar" element={
                 <MainCalendar
                     month={month}
@@ -60,7 +62,8 @@ function Routing() {
                     year={year}
                     taskByDate={taskByDate}
                 />
-            } />        </Routes>
+            } />
+        </Routes>
     )
 }
 export default Routing;

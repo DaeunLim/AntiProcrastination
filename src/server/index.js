@@ -119,9 +119,12 @@ app.post('/api/user/signup', async (req, res) => {
       return res.status(409).json({ message: "Username is already in use!" });
     }
 
+    const _id = new mongoose.Types.ObjectId(); // generate id for adding to user purposes and in case of failure of creation
+
     // Create the new user
-    const newUser = { username, email, password: hashedPassword };
-    await UserModel.create(newUser);
+    const newUser = { username, email, password: hashedPassword, calendars: [_id] };
+    const user = await UserModel.create(newUser);
+    await CalendarModel.create({ _id, name: "Calendar", owner: user._id }); // add new calendar
 
     return res.status(201).json({ message: "User added successfully" });
   } catch (error) {
@@ -447,7 +450,7 @@ app.delete('/api/calendar/unsubscribe/:id', async (req, res) => {
 // : POST date
 app.post('/api/date/add', async (req, res) => {
   try {
-    const { calendar: id, name, date, type, priority } = req.body; // get calendar info
+    const { calendar: id, name, date, type, priority, to, from } = req.body; // get calendar info
 
     const _id = new mongoose.Types.ObjectId(); // gen id
 
@@ -460,7 +463,7 @@ app.post('/api/date/add', async (req, res) => {
         date_modified: Date.now() // update calendar last modified
       },
       $addToSet: {
-        dates: new DateModel({ _id, name, date, type, priority }) // add date
+        dates: new DateModel({ _id, name, date, type, priority, to, from }) // add date
       }
     });
 
@@ -474,14 +477,14 @@ app.post('/api/date/add', async (req, res) => {
 app.put('/api/date/update/:id', async (req, res) => {
   try {
     const { id } = req.params; // get id
-    const { calendar, name, date, type, priority, completed_by } = req.body; // get calendar info
+    const { calendar, name, date, type, priority, to, from, completed_by } = req.body; // get calendar info
 
     await connectMongoDB(); // connect to database
 
     const updatedDate = await CalendarModel.findOneAndUpdate({ _id: calendar, "dates._id": id }, { // find specific calendar with date
       $set: {
         date_modified: Date.now(), // update modification time
-        "dates.$": ({ name, date, type, priority, date_modified: Date.now() }) // update specific date
+        "dates.$": ({ name, date, type, priority, to, from, date_modified: Date.now() }) // update specific date
       }
     }); // update calendar
 
