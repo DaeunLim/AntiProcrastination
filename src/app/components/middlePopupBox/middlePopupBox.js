@@ -5,22 +5,31 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
     const [date, setDate] = useState('');
     const [task, setTask] = useState('');
     const [priority, setPriority] = useState('green');
+    const [type, setType] = useState('assignment');
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
 
     const handleAddButton = () => {
         if (date && task) {
-            // 날짜를 YYYY-MM-DD 형식으로 포맷합니다.
+            // YYYY-MM-DD 
             const formattedDate = new Date(date);
             const formattedDateString = formattedDate.toISOString().split('T')[0];  // 2023-04-19 형태로 변환
 
-            // 날짜와 함께 과제를 전달합니다.
-            onAddTask(formattedDateString, { task, priority });
+            onAddTask(formattedDate, {
+                task,
+                priority,
+                type,
+                ...(type === 'event' ? { startTime, endTime } : {}),
+            });
 
-            // 입력 필드 초기화
+
             setDate('');
             setTask('');
             setPriority('green');
-            
-            // 팝업 닫기
+            setType('assignment');
+            setStartTime('');
+            setEndTime('');
+            //close popup
             onClose();
         }
     };
@@ -32,18 +41,28 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
                 <input
                     type="date"
                     value={date}
-                    onChange={(e) => setDate(e.target.value)} // 날짜 변경 시
+                    onChange={(e) => setDate(e.target.value)} // 
                 />
                 <input
                     type="text"
                     placeholder="Task description"
                     value={task}
-                    onChange={(e) => setTask(e.target.value)} // 과제 입력 변경 시
+                    onChange={(e) => setTask(e.target.value)} // 
                 />
+                <select value={type} onChange={(e) => setType(e.target.value)}>
+                    <option value="assignment">Assignment</option>
+                    <option value="event">Event</option>
+                </select>
+                {type === 'event' && (
+                    <>
+                        <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+                        <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+                    </>
+                )}
                 <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-                    <option value="red">High (Red)</option>
-                    <option value="orange">Medium (Orange)</option>
-                    <option value="green">Low (Green)</option>
+                    <option value="red">High</option>
+                    <option value="orange">Medium</option>
+                    <option value="green">Low</option>
                 </select>
                 <button onClick={handleAddButton}>Add</button>
                 <button onClick={onClose} className="close-button">Close</button>

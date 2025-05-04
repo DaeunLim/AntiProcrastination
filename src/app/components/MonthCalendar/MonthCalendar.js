@@ -3,7 +3,7 @@ import React from 'react';
 import './MonthCalendar.css';
 import { useNavigate } from 'react-router-dom';
 
-const MonthCalendar = ({ month, year }) => {
+const MonthCalendar = ({ month, year, taskByDate }) => {
   const navigate = useNavigate();
   // Function to get the first day of the month (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
   const getFirstDayOfMonth = (year, month) => {
@@ -14,15 +14,16 @@ const MonthCalendar = ({ month, year }) => {
   const getDaysInMonth = (month, year) => {
     return new Date(year, month + 1, 0).getDate(); // Last day of the month
   };
+  const getDateKey = (day, month, year) => `${year}-${month + 1}-${day}`;
 
   // Generate the dates of the month
   const generateCalendarDays = (month, year) => {
     const firstDay = getFirstDayOfMonth(year, month);
     const daysInMonth = getDaysInMonth(month, year);
-    
+
     // Create an array of all the days to display
     let daysArray = [];
-    
+
     // Add empty days for the first row (if the month doesn't start on Sunday)
     for (let i = 0; i < firstDay; i++) {
       daysArray.push(null); // Empty day (used for the blank spaces before the 1st of the month)
@@ -63,11 +64,35 @@ const MonthCalendar = ({ month, year }) => {
         ))}
       </div>
       <div className="calendar-days">
-        {daysArray.map((day, index) => (
-          <div key={index} className={`calendar-day ${day ? '' : 'empty'}`}>
-            {day}
-          </div>
-        ))}
+        {daysArray.map((day, index) => {
+          const dateKey = day ? getDateKey(day, month, year) : null;
+          const tasks = dateKey ? taskByDate[dateKey] || [] : [];
+          return (
+            <div key={index} className={`calendar-day ${day ? '' : 'empty'}`}>
+              {day}
+              {tasks.length > 0 && (
+                <div className="task-view">
+                  {tasks.slice(0, 2).map((taskObj, i) => (
+                    <div key={i} className="task-bullet">
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          backgroundColor: taskObj.priority || 'gray',
+                          marginRight: '6px',
+                        }}
+                      ></span>
+                      {taskObj.task}
+                    </div>
+                  ))}
+                  {tasks.length > 2 && <div className="more-tasks">+{tasks.length - 2} more</div>}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
