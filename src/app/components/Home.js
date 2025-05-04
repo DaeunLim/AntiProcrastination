@@ -1,31 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Header from './Header/Header'; // Header component
 import Sidebar from './Sidebar';
 import TodoList from './TodoList/TodoList'; // Todo List component
-import MonthCalendar from './MonthCalendar/MonthCalendar'; // Small calendar
+const MonthCalendar = lazy(() => import('./MonthCalendar/MonthCalendar')); // Small calendar
 import MainCalendar from './MainCalendar/MainCalendar'; // Full calendar
 import { useNavigate, Link, redirect } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom'; // React Router
 import './Home.css'; // CSS styles for Home component
 
 function Home({ isLoading, isVerified, setVerified, user }) {
-
-    const history = useNavigate();
-    useEffect(() => {
-        if (!isVerified) {
-            history("/")
-        }
-    }, [isVerified])
   const currentDate = new Date();
   const month = currentDate.getMonth(); // Current month (0-11)
   const year = currentDate.getFullYear(); // Current year
 
   //Sidebar & Calendar Status
   const [activeTab, setActiveTab] = useState(0);
-  const [calendars, setCalendars] = useState(['Calendar']);
-  const [selectedCalendar, setSelectedCalendar] = useState('Calendar');
+  const [calendars, setCalendars] = useState([]);
+  const [selectedCalendar, setSelectedCalendar] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [taskDataByCalendar, setTaskDataByCalendar] = useState({});
+
+  const history = useNavigate();
+  useEffect(() => {
+    if (!isVerified) {
+      history("/")
+    } else {
+      const getCalendars = async () => {
+        const res = await fetch(`http://localhost:8080/api/calendar/`, {
+          method: "GET",
+          credentials: "include",
+        })
+        const data = await res.json();
+        setCalendars(data);
+        setSelectedCalendar(data[0])
+      }
+      getCalendars();
+    }
+  }, [isVerified, selectedCalendar, calendars])
 
   const addTaskToCalendar = (calendarName, dateKey, taskObj) => {
     setTaskDataByCalendar(prev => ({
@@ -46,11 +57,11 @@ function Home({ isLoading, isVerified, setVerified, user }) {
     const calendarName = calendars[index];
     const confirmed = window.confirm(`Are you sure you want to delete "${calendarName}"? This cannot be undone.`);
     if (!confirmed) return;
-  
+
     const newCalendars = calendars.filter((_, i) => i !== index);
     setCalendars(newCalendars);
   };
-  
+
   const renameCalendar = (index, newName) => {
     const newCalendars = [...calendars];
     newCalendars[index] = newName;
@@ -93,40 +104,45 @@ function Home({ isLoading, isVerified, setVerified, user }) {
               <div className="home-main-content">
                 <TodoList />
 
-                {/* Calendar Tabs */}
-                <div className="home-middle-section">
-                  <div className="calendar-tabs-wrapper">
-                    <div className="tab-buttons">
-                      {calendars.map((name, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => {
-                            setActiveTab(idx);
-                            setSelectedCalendar(name);
-                          }}
-                          className={idx === activeTab ? 'active-tab' : ''}
-                        >
-                          {name}
-                        </button>
+                  {/* Calendar Tabs */}
+                  <div className="home-middle-section">
+                    <div className="calendar-tabs-wrapper">
+                      <div className="tab-buttons">
+                        {calendars.map((calendar, idx) => (
+                          <Suspense key={idx}>
+                            <button
+                              key={idx}
+                              onClick={() => {
+                                setActiveTab(idx);
+                                setSelectedCalendar(calendar);
+                              }}
+                              className={idx === activeTab ? 'active-tab' : ''}
+                            >
+                              {calendar.name}
+                            </button>
+                          </Suspense>
+                        ))}
+                      </div>
+
+                      {calendars.map((calendar, idx) => (
+                        <Suspense key={idx}>
+                          <div
+                            key={idx}
+                            className="calendar-tab-content"
+                            style={{ display: idx === activeTab ? 'block' : 'none' }}
+                          >
+                            <MonthCalendar
+                              month={month}
+                              year={year}
+                              calendar={calendar}
+                              taskByDate={taskDataByCalendar[calendar.name] || {}}
+                              onAddTask={(dateKey, taskObj) => addTaskToCalendar(calendar, dateKey, taskObj)}
+                            />
+                          </div>
+                        </Suspense>
                       ))}
                     </div>
-
-                    {calendars.map((name, idx) => (
-                      <div
-                        key={idx}
-                        className="calendar-tab-content"
-                        style={{ display: idx === activeTab ? 'block' : 'none' }}
-                      >
-                        <MonthCalendar
-                          month={month}
-                          year={year}
-                          taskByDate={taskDataByCalendar[name] || {}}
-                          onAddTask={(dateKey, taskObj) => addTaskToCalendar(name, dateKey, taskObj)}
-                        />
-                      </div>
-                    ))}
                   </div>
-                </div>
               </div>
             }
           />

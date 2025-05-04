@@ -3,7 +3,16 @@ import React from 'react';
 import './MonthCalendar.css';
 import { useNavigate } from 'react-router-dom';
 
-const MonthCalendar = ({ month, year, taskByDate }) => {
+const MonthCalendar = ({ month, year, calendar, taskByDate }) => {
+
+  const getUrgencyColor = (date) => {
+    const diff = Math.ceil((date - today) / (1000 * 60 * 60 * 24));
+    if (diff < 0) return 'gray';
+    if (diff <= 1) return 'red';
+    if (diff <= 3) return 'yellow';
+    return 'green';
+  };
+
   const navigate = useNavigate();
   // Function to get the first day of the month (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
   const getFirstDayOfMonth = (year, month) => {
@@ -48,7 +57,7 @@ const MonthCalendar = ({ month, year, taskByDate }) => {
   const weekdays = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
 
   const handleTitleClick = () => {
-    navigate('/calendar');  // Navigate to FullCalendarPage when title is clicked
+    navigate(`/calendar/${calendar.id}`, calendar);  // Navigate to FullCalendarPage when title is clicked
   };
 
   return (
@@ -80,7 +89,7 @@ const MonthCalendar = ({ month, year, taskByDate }) => {
                           width: '8px',
                           height: '8px',
                           borderRadius: '50%',
-                          backgroundColor: taskObj.priority || 'gray',
+                          backgroundColor: getUrgencyColor(taskObj.date) || 'gray',
                           marginRight: '6px',
                         }}
                       ></span>

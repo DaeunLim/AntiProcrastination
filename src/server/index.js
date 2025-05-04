@@ -353,7 +353,7 @@ app.put('/api/calendar/update/:id', async (req, res) => {
 
     await connectMongoDB(); // connect to database
 
-    await CalendarModel.findByIdAndUpdate(id, { name, subscribers }); // update calendar
+    await CalendarModel.findByIdAndUpdate(id, { name, subscribers, date_modified: Date.now() }); // update calendar
 
     return res.status(200).json({ message: "Calendar updated successfully" }); // send back message
   } catch (error) {

@@ -114,6 +114,10 @@ ul {
     background-color: #ffe1e1;
     border-radius: 50%;
     margin: 12px;
+    text-align: center;
+    font-size: 40px;
+    color: lightpink;
+    line-height: 60px;
 }
 
 .user_info {
