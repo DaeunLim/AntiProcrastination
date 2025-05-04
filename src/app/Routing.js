@@ -5,6 +5,7 @@ const Home = lazy(() => import("./components/Home"));
 const Login = lazy(() => import("./components/Login"));
 import App from "./App";
 import MainCalendar from './components/MainCalendar/MainCalendar';
+import MonthCalendar from './components/MonthCalendar/MonthCalendar';
 
 function Routing() {
     const currentDate = new Date();
@@ -15,6 +16,8 @@ function Routing() {
     const [isVerified, setVerified] = useState(false);
     const [wasLoaded, setLoaded] = useState(false); // on first page load
     const [isLoading, setLoading] = useState(true); // if page is still loading
+    // Shared state for taskByDate
+    const [taskByDate, setTaskByDate] = useState({});
     useEffect(() => {
         if (!wasLoaded) {
             const verify = async () => {
@@ -41,12 +44,23 @@ function Routing() {
                     <Login isVerified={isVerified} setVerified={setVerified} />
                 </Suspense>} />
             <Route path="/signup" element={<Signup isVerified={isVerified} />} />
-            <Route path="/home" element={
-                <Suspense>
-                    <Home isLoading={isLoading} isVerified={isVerified} setVerified={setVerified} user={user} />
-                </Suspense>} />
-            <Route path="/calendar" element={<MainCalendar month={month} year={year} />} />
-        </Routes>
+-           <Route path="/home" element={<Home isLoading={isLoading} isVerified={isVerified} setVerified={setVerified} user={user} />} />
+            
+            <Route path="/calendar" element={
+                <MainCalendar
+                    month={month}
+                    year={year}
+                    taskByDate={taskByDate}
+                    setTaskByDate={setTaskByDate}
+                />
+            } />
+            <Route path="/month" element={
+                <MonthCalendar
+                    month={month}
+                    year={year}
+                    taskByDate={taskByDate}
+                />
+            } />        </Routes>
     )
 }
 export default Routing;
