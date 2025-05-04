@@ -2,7 +2,28 @@
     animation: fadeIn 0.2s ease-in-out;
     border-radius: 10px;
     padding: 16px;
+    margin: 10px;
   }
+  .popup-input {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* 요소 간 간격 */
+    margin-top: 16px;
+  }
+  .popup-input select,
+.popup-input input[type="text"],
+.popup-input input[type="time"] {
+  margin-bottom: 10px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+.button-arrange {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
 
 .popup-add {
   background-color: #fff6f0; /* light green */

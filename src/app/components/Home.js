@@ -19,14 +19,32 @@ function Home({ isVerified, setVerified, user }) {
   const [calendars, setCalendars] = useState(['Calendar']);
   const [selectedCalendar, setSelectedCalendar] = useState('Calendar');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [taskDataByCalendar, setTaskDataByCalendar] = useState({});
+
+  const addTaskToCalendar = (calendarName, dateKey, taskObj) => {
+    setTaskDataByCalendar(prev => ({
+      ...prev,
+      [calendarName]: {
+        ...(prev[calendarName] || {}),
+        [dateKey]: [...(prev[calendarName]?.[dateKey] || []), taskObj]
+      }
+    }));
+  };
+
+  //sidebar
   const addCalendar = () => {
     const newName = `Calendar ${calendars.length + 1}`;
     setCalendars([...calendars, newName]);
   };
   const deleteCalendar = (index) => {
+    const calendarName = calendars[index];
+    const confirmed = window.confirm(`Are you sure you want to delete "${calendarName}"? This cannot be undone.`);
+    if (!confirmed) return;
+  
     const newCalendars = calendars.filter((_, i) => i !== index);
     setCalendars(newCalendars);
   };
+  
   const renameCalendar = (index, newName) => {
     const newCalendars = [...calendars];
     newCalendars[index] = newName;
@@ -47,7 +65,10 @@ function Home({ isVerified, setVerified, user }) {
         calendars={calendars}
         onSelectCalendar={(name) => {
           const idx = calendars.indexOf(name);
-          if (idx !== -1) setActiveTab(idx);
+          if (idx !== -1) {
+            setActiveTab(idx);
+            setSelectedCalendar(name);
+          }
         }}
         onAddCalendar={addCalendar}
         onDeleteCalendar={deleteCalendar}
@@ -73,7 +94,10 @@ function Home({ isVerified, setVerified, user }) {
                       {calendars.map((name, idx) => (
                         <button
                           key={idx}
-                          onClick={() => setActiveTab(idx)}
+                          onClick={() => {
+                            setActiveTab(idx);
+                            setSelectedCalendar(name);
+                          }}
                           className={idx === activeTab ? 'active-tab' : ''}
                         >
                           {name}
@@ -84,9 +108,15 @@ function Home({ isVerified, setVerified, user }) {
                     {calendars.map((name, idx) => (
                       <div
                         key={idx}
+                        className="calendar-tab-content"
                         style={{ display: idx === activeTab ? 'block' : 'none' }}
                       >
-                        <MonthCalendar month={month} year={year} />
+                        <MonthCalendar
+                          month={month}
+                          year={year}
+                          taskByDate={taskDataByCalendar[name] || {}}
+                          onAddTask={(dateKey, taskObj) => addTaskToCalendar(name, dateKey, taskObj)}
+                        />
                       </div>
                     ))}
                   </div>
@@ -102,7 +132,11 @@ function Home({ isVerified, setVerified, user }) {
             path="/calendar"
             element={
               <div className="home-main-content">
-                <MainCalendar month={month} year={year}
+                <MainCalendar
+                  month={month}
+                  year={year}
+                  taskByDate={taskDataByCalendar[selectedCalendar] || {}}
+                  onAddTask={(dateKey, taskObj) => addTaskToCalendar(selectedCalendar, dateKey, taskObj)}
                 />
               </div>
             } />
