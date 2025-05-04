@@ -389,12 +389,18 @@ app.delete('/api/calendar/delete/:id', async (req, res) => {
 
     await InvitationModel.deleteMany({ _id: { $in: deletedCalendar.invitations } });
 
-    await UserModel.updateMany({ $or: { email: { $in: deletedCalendar.subscribers }, invitations: { $in: deletedCalendar.invitations } } }, {
+    await UserModel.updateMany( { email: { $in: deletedCalendar.subscribers } }, {
       $set: {
         date_modified: Date.now() // update subscriber last modified
       },
       $pull: {
         calendars: id // delete calendar from subscribers' list
+      },
+    });
+
+    await UserModel.updateMany({ invitations: { $in: deletedCalendar.invitations } }, {
+      $set: {
+        date_modified: Date.now() // update subscriber last modified
       },
       $pull: {
         invitations: deletedCalendar.invitations // delete invitation
@@ -463,7 +469,7 @@ app.post('/api/date/add', async (req, res) => {
         date_modified: Date.now() // update calendar last modified
       },
       $addToSet: {
-        dates: new DateModel({ _id, name, date, type, priority, to, from }) // add date
+        dates: new DateModel({ _id, name, date, taskType: type, priority, to, from }) // add date
       }
     });
 
@@ -484,7 +490,7 @@ app.put('/api/date/update/:id', async (req, res) => {
     const updatedDate = await CalendarModel.findOneAndUpdate({ _id: calendar, "dates._id": id }, { // find specific calendar with date
       $set: {
         date_modified: Date.now(), // update modification time
-        "dates.$": ({ name, date, type, priority, to, from, date_modified: Date.now() }) // update specific date
+        "dates.$": ({ name, date, taskType: type, priority, to, from, date_modified: Date.now() }) // update specific date
       }
     }); // update calendar
 
