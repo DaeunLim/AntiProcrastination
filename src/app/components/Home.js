@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Header from './Header/Header'; // Header component
 import Sidebar from './Sidebar';
 import TodoList from './TodoList/TodoList'; // Todo List component
-import SocialBox from './SocialBox'; // Social Box component
 import MonthCalendar from './MonthCalendar/MonthCalendar'; // Small calendar
 import MainCalendar from './MainCalendar/MainCalendar'; // Full calendar
 import { useNavigate, Link, redirect } from 'react-router-dom';
@@ -127,10 +126,6 @@ function Home({ isLoading, isVerified, setVerified, user }) {
                       </div>
                     ))}
                   </div>
-                </div>
-
-                <div className="home-right-section">
-                  <SocialBox />
                 </div>
               </div>
             }

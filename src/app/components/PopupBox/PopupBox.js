@@ -5,7 +5,6 @@ const PopupBox = ({ day, month, year, position, onClose, tasks = [], onAddTask, 
   if (!day) return null;
 
   const [taskInput, setTaskInput] = useState('');
-  const [priority, setPriority] = useState('green');
   const [type, setType] = useState('assignment');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
@@ -16,13 +15,11 @@ const PopupBox = ({ day, month, year, position, onClose, tasks = [], onAddTask, 
       const newTask = {
         task: taskInput,
         type,
-        priority,
         ...(type === 'event' ? { startTime, endTime } : {}),
       };
       onAddTask(newTask);
       setTaskInput('');
       setType('assignment');
-      setPriority('green');
       setStartTime('');
       setEndTime('');
     }
@@ -67,11 +64,6 @@ const PopupBox = ({ day, month, year, position, onClose, tasks = [], onAddTask, 
             <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
           </>
         )}
-        <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-          <option value="red">High (Red)</option>
-          <option value="orange">Medium (Orange)</option>
-          <option value="green">Low (Green)</option>
-        </select>
       </div>
 
       <div className="button-arrange">

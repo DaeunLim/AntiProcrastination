@@ -26,13 +26,17 @@ function Login({ isVerified, setVerified }) {
                         setVerified(true);
                         history("/home", { state: { user: res.data.user } }) // Passes user
                     }
-                    else if (res.status == 404) {
-                        alert("Account does not exist")
-                    }
                 })
                 .catch(err => {
-                    alert("Incorrect username or password")
-                    console.log(err);
+                    if (err.status == 404) {
+                        alert("Account does not exist")
+                    }
+                    else if (err.status == 401) {
+                        alert("Incorrect username or password")
+                    }
+                    else { 
+                        alert("Internal server error")
+                    }
                 })
         }
         catch (e) {

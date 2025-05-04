@@ -8,7 +8,6 @@ import TaskSidebar from '../TaskSidebar/TaskSidebar';
 const MainCalendar = ({ month, year, taskByDate, setTaskByDate }) => {
 
   const navigate = useNavigate();
-  console.log("Month:", month, "Year:", year); // check value of months and year
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [popupBox, setPopupBox] = useState({ x: 0, y: 0 });

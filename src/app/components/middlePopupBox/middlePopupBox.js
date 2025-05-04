@@ -4,7 +4,6 @@ import './middlePopupBox.css';
 const MiddlePopupBox = ({ onAddTask, onClose }) => {
     const [date, setDate] = useState('');
     const [task, setTask] = useState('');
-    const [priority, setPriority] = useState('green');
     const [type, setType] = useState('assignment');
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
@@ -17,7 +16,6 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
 
             onAddTask(formattedDate, {
                 task,
-                priority,
                 type,
                 ...(type === 'event' ? { startTime, endTime } : {}),
             });
@@ -25,7 +23,6 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
 
             setDate('');
             setTask('');
-            setPriority('green');
             setType('assignment');
             setStartTime('');
             setEndTime('');
@@ -59,11 +56,6 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
                         <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
                     </>
                 )}
-                <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-                    <option value="red">High</option>
-                    <option value="orange">Medium</option>
-                    <option value="green">Low</option>
-                </select>
                 <button onClick={handleAddButton}>Add</button>
                 <button onClick={onClose} className="close-button">Close</button>
             </div>
