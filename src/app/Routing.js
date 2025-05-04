@@ -48,14 +48,16 @@ function Routing() {
                 <Suspense>
                     <Home isLoading={isLoading} isVerified={isVerified} setVerified={setVerified} user={user} />
                 </Suspense>} />
-            <Route path="/calendar" element={
-                <MainCalendar
-                    month={month}
-                    year={year}
-                    taskByDate={taskByDate}
-                    setTaskByDate={setTaskByDate}
-                />
-            } />
+            <Route path="/calendar/:id" element={
+                <Suspense>
+                    <MainCalendar
+                        month={month}
+                        year={year}
+                        calendar={null}
+                        taskByDate={taskByDate}
+                        setTaskByDate={setTaskByDate}
+                    />
+                </Suspense>} />
             <Route path="/month" element={
                 <MonthCalendar
                     month={month}

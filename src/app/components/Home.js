@@ -17,7 +17,7 @@ function Home({ isLoading, isVerified, setVerified, user }) {
   //Sidebar & Calendar Status
   const [activeTab, setActiveTab] = useState(0);
   const [calendars, setCalendars] = useState([]);
-  const [selectedCalendar, setSelectedCalendar] = useState([]);
+  const [selectedCalendar, setSelectedCalendar] = useState(null);
   const [taskDataByCalendar, setTaskDataByCalendar] = useState({});
 
   const history = useNavigate();
@@ -61,7 +61,7 @@ function Home({ isLoading, isVerified, setVerified, user }) {
 
       if (response.status === 201) {
         // If the calendar is successfully added to the database, update the local state
-        setCalendars([...calendars, {name: newName}]);
+        setCalendars([...calendars, {_id: response.data._id, name: newName, owner: user._id, subscribers: [], dates: [], invitations: []}]);
       } else {
         alert("Failed to add calendar to the database");
       }
@@ -80,10 +80,13 @@ function Home({ isLoading, isVerified, setVerified, user }) {
         method: "DELETE",
         credentials: 'include',
       });
-      console.log(res);
       if (res.status == 200) {
         const newCalendars = calendars.filter((_, i) => i !== index);
         setCalendars(newCalendars);
+        if (calendar._id === selectedCalendar._id) {
+          setActiveTab(index - 1);
+          setSelectedCalendar(calendars[index - 1]);
+        }
       };
     } catch (err) {
       console.log(err);
@@ -108,11 +111,11 @@ function Home({ isLoading, isVerified, setVerified, user }) {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         calendars={calendars}
-        onSelectCalendar={(name) => {
-          const idx = calendars.indexOf(name);
+        onSelectCalendar={(calendar) => {
+          const idx = calendars.indexOf(calendar._id);
           if (idx !== -1) {
             setActiveTab(idx);
-            setSelectedCalendar(name);
+            setSelectedCalendar(calendar);
           }
         }}
         onAddCalendar={addCalendar}
@@ -142,7 +145,7 @@ function Home({ isLoading, isVerified, setVerified, user }) {
                             key={idx}
                             onClick={() => {
                               setActiveTab(idx);
-                              setSelectedCalendar(calendar.name);
+                              setSelectedCalendar(calendar);
                             }}
                             className={idx === activeTab ? 'active-tab' : ''}
                           >

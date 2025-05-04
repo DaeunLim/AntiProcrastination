@@ -11,7 +11,6 @@ import session from 'express-session';
 import connectMongoDBSession from 'connect-mongodb-session';
 import { InvitationModel } from '../models/invitationSchema.js';
 
-
 require('dotenv').config() // get .env variables
 
 // HI! This is the server! Here is how to start it up:

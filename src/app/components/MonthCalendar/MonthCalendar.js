@@ -57,7 +57,7 @@ const MonthCalendar = ({ month, year, calendar, taskByDate }) => {
   const weekdays = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
 
   const handleTitleClick = () => {
-    navigate(`/calendar/${calendar.id}`, calendar);  // Navigate to FullCalendarPage when title is clicked
+    navigate(`/calendar/${calendar._id}`, { state: { calendar }});  // Navigate to FullCalendarPage when title is clicked
   };
 
   return (

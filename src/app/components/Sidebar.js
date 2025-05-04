@@ -19,7 +19,7 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
 
   const handleRenameSubmit = async (calendar) => {
     try {
-      if (editName.trim()) {
+      if (editName.trim() != calendar.name) {
         onRenameCalendar(editingIndex, editName.trim());
         const res = await fetch(`http://localhost:8080/api/calendar/update/${calendar._id}`, {
           method: "PUT",
@@ -29,7 +29,6 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
           },
           body: JSON.stringify({ name: editName.trim() })
         })
-        console.log(res);
       }
       setEditingIndex(null);
       setEditName('');
@@ -89,8 +88,8 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
                 ) : (
                   // When a calendar is clicked, select it and navigate to the calendar page
                   <span onClick={() => {
-                    onSelectCalendar(calendar.name);
-                    navigate('/calendar', { state: { selectedCalendar: calendar.name } }); // Pass selected calendar to the next page
+                    onSelectCalendar(calendar);
+                    //navigate('/calendar', { state: { selectedCalendar: calendar.name } }); // Pass selected calendar to the next page
                   }}>
                     {calendar.name}
                   </span>)}
