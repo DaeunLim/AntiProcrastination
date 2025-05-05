@@ -9,25 +9,34 @@ const PopupBox = ({ day, month, year, position, onClose, tasks = [], onAddTask, 
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const handleAddingTask = () => {
-    if (taskInput.trim() !== '') {
-      const newTask = {
-        task: taskInput,
-        type,
-        ...(type === 'event' ? { startTime, endTime } : {}),
-      };
-      onAddTask(newTask);
-      setTaskInput('');
-      setType('assignment');
-      setStartTime('');
-      setEndTime('');
-    }
+  const getUrgencyColor = (dueStr) => {
+    const due = new Date(dueStr);
+    due.setHours(0, 0, 0, 0);
+    const diff = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+    if (diff < 0) return 'gray';
+    if (diff <= 1) return 'red';
+    if (diff <= 3) return 'yellow';
+    return 'green';
   };
 
-  const handleDeleteTask = (indexToDelete) => {
-    const updatedTasks = tasks.filter((_, i) => i !== indexToDelete);
-    onAddTask(updatedTasks); // Replace tasks with updated list
+  const handleAddingTask = () => {
+    if (!taskInput.trim()) return;
+
+    const dateStr = `${year}-${month + 1}-${day}`;
+    const taskObj = {
+      task: taskInput,
+      type,
+      due: dateStr,
+      startTime: startTime || '',
+      endTime: endTime || '',
+      priority: getUrgencyColor(dateStr)
+    };
+
+    onAddTask(taskObj);
+    onClose();
   };
 
   return (
@@ -45,7 +54,6 @@ const PopupBox = ({ day, month, year, position, onClose, tasks = [], onAddTask, 
       <div className="popup-header">
         <strong>{`Tasks for ${month + 1}/${day}`}</strong>
       </div>
-
 
       <div className="popup-input">
         <select value={type} onChange={(e) => setType(e.target.value)}>

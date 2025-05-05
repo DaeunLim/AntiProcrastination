@@ -75,6 +75,7 @@ function Home({ isLoading, isVerified, setVerified, user }) {
     const calendar = calendars[index];
     const confirmed = window.confirm(`Are you sure you want to delete "${calendar.name}"? This cannot be undone.`);
     if (!confirmed) return;
+
     try {
       const res = await fetch(`http://localhost:8080/api/calendar/delete/${calendar._id}`, {
         method: "DELETE",
@@ -133,8 +134,26 @@ function Home({ isLoading, isVerified, setVerified, user }) {
             index
             element={
               <div className="home-main-content">
-                <TodoList />
-
+                <TodoList
+                  taskByDate={taskDataByCalendar[selectedCalendar] || {}}
+                  setTaskByDate={(updated) =>
+                    setTaskDataByCalendar(prev => ({
+                      ...prev,
+                      [selectedCalendar]: updated
+                    }))
+                  }
+                  onDeleteTask={(dateKey, taskIndex) => {
+                    const updatedTasks = [...(taskDataByCalendar[selectedCalendar]?.[dateKey] || [])];
+                    updatedTasks.splice(taskIndex, 1);
+                    setTaskDataByCalendar(prev => ({
+                      ...prev,
+                      [selectedCalendar]: {
+                        ...(prev[selectedCalendar] || {}),
+                        [dateKey]: updatedTasks
+                      }
+                    }));
+                  }}
+                />
                 {/* Calendar Tabs */}
                 <div className="home-middle-section">
                   <div className="calendar-tabs-wrapper">
@@ -155,40 +174,37 @@ function Home({ isLoading, isVerified, setVerified, user }) {
                       ))}
                     </div>
 
-                    {calendars.map((calendar, idx) => (
-                      <Suspense key={idx}>
-                        <div
-                          key={idx}
-                          className="calendar-tab-content"
-                          style={{ display: idx === activeTab ? 'block' : 'none' }}
-                        >
-                          <MonthCalendar
-                            month={month}
-                            year={year}
-                            calendar={calendar}
-                            taskByDate={taskDataByCalendar[calendar.name] || {}}
-                            onAddTask={(dateKey, taskObj) => addTaskToCalendar(calendar, dateKey, taskObj)}
-                          />
-                        </div>
-                      </Suspense>
+                    {calendars.map((name, idx) => (
+                      <div
+                        key={idx}
+                        className="calendar-tab-content"
+                        style={{ display: idx === activeTab ? 'block' : 'none' }}
+                      >
+                        <MainCalendar
+                          month={month}
+                          year={year}
+                          taskByDate={taskDataByCalendar[selectedCalendar] || {}}
+                          onAddTask={(dateKey, taskObj) => addTaskToCalendar(selectedCalendar, dateKey, taskObj)}
+                          onDeleteTask={(dateKey, index) => {
+                            const updatedTasks = [...(taskDataByCalendar[selectedCalendar]?.[dateKey] || [])];
+                            updatedTasks.splice(index, 1);
+                            setTaskDataByCalendar(prev => ({
+                              ...prev,
+                              [selectedCalendar]: {
+                                ...(prev[selectedCalendar] || {}),
+                                [dateKey]: updatedTasks
+                              }
+                            }));
+                          }}
+                        />
+
+                      </div>
                     ))}
                   </div>
                 </div>
               </div>
             }
-          />
-          <Route
-            path="/calendar"
-            element={
-              <div className="home-main-content">
-                <MainCalendar
-                  month={month}
-                  year={year}
-                  taskByDate={taskDataByCalendar[selectedCalendar] || {}}
-                  onAddTask={(dateKey, taskObj) => addTaskToCalendar(selectedCalendar, dateKey, taskObj)}
-                />
-              </div>
-            } />
+            c />
 
         </Routes>
       </div>
