@@ -22,17 +22,21 @@ function Login({ isVerified, setVerified }) {
         try {
             await axios.post("http://localhost:8080/api/user/login", { username, password }, { withCredentials: true },)
                 .then(res => {
-                    if (res.data = "Successfully logged in") { //Username is present
+                    if (res.status == 200) { // Correct login
                         setVerified(true);
-                        history("/home", { state: { id: username } }) //Passes email to welcome page
-                    }
-                    else if (res.data = "Account does not exist") {
-                        alert("Account does not exist")
+                        history("/home", { state: { user: res.data.user } }) // Passes user
                     }
                 })
                 .catch(err => {
-                    alert("Incorrect username or password")
-                    console.log(err);
+                    if (err.status == 404) {
+                        alert("Account does not exist")
+                    }
+                    else if (err.status == 401) {
+                        alert("Incorrect username or password")
+                    }
+                    else { 
+                        alert("Internal server error")
+                    }
                 })
         }
         catch (e) {

@@ -17,12 +17,24 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
     setEditName(currentName);
   };
 
-  const handleRenameSubmit = () => {
-    if (editName.trim()) {
-      onRenameCalendar(editingIndex, editName.trim());
+  const handleRenameSubmit = async (calendar) => {
+    try {
+      if (editName.trim() != calendar.name) {
+        onRenameCalendar(editingIndex, editName.trim());
+        const res = await fetch(`http://localhost:8080/api/calendar/update/${calendar._id}`, {
+          method: "PUT",
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'Application/json',
+          },
+          body: JSON.stringify({ name: editName.trim() })
+        })
+      }
+      setEditingIndex(null);
+      setEditName('');
+    } catch (err) {
+      console.log(err);
     }
-    setEditingIndex(null);
-    setEditName('');
   };
 
   return (
@@ -40,10 +52,10 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
 
           <div className="drawer_profile">
 
-            <div className="avatar" />
+            <div className="avatar">{user.username.charAt(0)}</div>
             <div className="user_info">
               <p className="username">{user.username}</p>
-              <p className="rank">{'{rank}'}</p>
+              <p className="rank">Tasks completed: {user.tasks_completed}</p>
             </div>
           </div>
 
@@ -60,15 +72,15 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
             <button className="add-calendar-btn" onClick={onAddCalendar}>+</button>
           </div>
           <ul className="drawer_calendars">
-            {calendars.map((name, idx) => (
+            {calendars.map((calendar, idx) => (
               <li key={idx}>
                 {editingIndex === idx ? (
                   <input
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    onBlur={handleRenameSubmit}
+                    onBlur={() => handleRenameSubmit(calendar)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleRenameSubmit();
+                      if (e.key === 'Enter') handleRenameSubmit(calendar);
                       if (e.key === 'Escape') setEditingIndex(null);
                     }}
                     autoFocus
@@ -76,13 +88,13 @@ function Sidebar({ isOpen, onClose, calendars, onSelectCalendar, onAddCalendar, 
                 ) : (
                   // When a calendar is clicked, select it and navigate to the calendar page
                   <span onClick={() => {
-                    onSelectCalendar(name);
-                    navigate('/calendar', { state: { selectedCalendar: name } }); // Pass selected calendar to the next page
+                    onSelectCalendar(calendar);
+                    //navigate('/calendar', { state: { selectedCalendar: calendar.name } }); // Pass selected calendar to the next page
                   }}>
-                    {name}
+                    {calendar.name}
                   </span>)}
                 <div className="calendar_edit">
-                  <div className="rename" onClick={() => handleRenameStart(idx, name)} >✎</div>
+                  <div className="rename" onClick={() => handleRenameStart(idx, calendar.name)} >✎</div>
                   <button onClick={() => onDeleteCalendar(idx)}>X</button>
                 </div>
 

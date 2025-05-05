@@ -9,6 +9,7 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
 
+
   // Today's date (for priority calculation)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -23,6 +24,7 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
     if (diff <= 3) return 'yellow';
     return 'green';
   };
+
 
   // Handle task addition
   const handleAddButton = () => {
@@ -91,6 +93,7 @@ const MiddlePopupBox = ({ onAddTask, onClose }) => {
       </div>
     </div>
   );
+
 };
 
 export default MiddlePopupBox;

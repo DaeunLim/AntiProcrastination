@@ -11,7 +11,6 @@ import session from 'express-session';
 import connectMongoDBSession from 'connect-mongodb-session';
 import { InvitationModel } from '../models/invitationSchema.js';
 
-
 require('dotenv').config() // get .env variables
 
 // HI! This is the server! Here is how to start it up:
@@ -119,9 +118,12 @@ app.post('/api/user/signup', async (req, res) => {
       return res.status(409).json({ message: "Username is already in use!" });
     }
 
+    const _id = new mongoose.Types.ObjectId(); // generate id for adding to user purposes and in case of failure of creation
+
     // Create the new user
-    const newUser = { username, email, password: hashedPassword };
-    await UserModel.create(newUser);
+    const newUser = { username, email, password: hashedPassword, calendars: [_id] };
+    const user = await UserModel.create(newUser);
+    await CalendarModel.create({ _id, name: "Calendar", owner: user._id }); // add new calendar
 
     return res.status(201).json({ message: "User added successfully" });
   } catch (error) {
@@ -197,7 +199,15 @@ app.post('/api/user/login', async (req, res) => {
           req.session.save((err) => {
             if (err) return next(err)
           }); // save
-          return res.status(200).json({ message: "Login successful" }); // send back session
+          return res.status(200).json({ message: "Login successful",
+            user: {
+              _id: user._id,
+              username: user.username,
+              email: user.email,
+              calendars: user.calendars,
+              invitations: user.invitations,
+              tasks_completed: user.tasks_completed,
+            } }); // send back user and session
         }); // regenerate session
       } else {
         return res.status(401).json({ error: "Username or Password is not correct" });
@@ -342,7 +352,7 @@ app.put('/api/calendar/update/:id', async (req, res) => {
 
     await connectMongoDB(); // connect to database
 
-    await CalendarModel.findByIdAndUpdate(id, { name, subscribers }); // update calendar
+    await CalendarModel.findByIdAndUpdate(id, { name, subscribers, date_modified: Date.now() }); // update calendar
 
     return res.status(200).json({ message: "Calendar updated successfully" }); // send back message
   } catch (error) {
@@ -378,12 +388,18 @@ app.delete('/api/calendar/delete/:id', async (req, res) => {
 
     await InvitationModel.deleteMany({ _id: { $in: deletedCalendar.invitations } });
 
-    await UserModel.updateMany({ $or: { email: { $in: deletedCalendar.subscribers }, invitations: { $in: deletedCalendar.invitations } } }, {
+    await UserModel.updateMany( { email: { $in: deletedCalendar.subscribers } }, {
       $set: {
         date_modified: Date.now() // update subscriber last modified
       },
       $pull: {
         calendars: id // delete calendar from subscribers' list
+      },
+    });
+
+    await UserModel.updateMany({ invitations: { $in: deletedCalendar.invitations } }, {
+      $set: {
+        date_modified: Date.now() // update subscriber last modified
       },
       $pull: {
         invitations: deletedCalendar.invitations // delete invitation
@@ -439,7 +455,7 @@ app.delete('/api/calendar/unsubscribe/:id', async (req, res) => {
 // : POST date
 app.post('/api/date/add', async (req, res) => {
   try {
-    const { calendar: id, name, date, type, priority } = req.body; // get calendar info
+    const { calendar: id, name, date, type, priority, to, from } = req.body; // get calendar info
 
     const _id = new mongoose.Types.ObjectId(); // gen id
 
@@ -452,7 +468,7 @@ app.post('/api/date/add', async (req, res) => {
         date_modified: Date.now() // update calendar last modified
       },
       $addToSet: {
-        dates: new DateModel({ _id, name, date, type, priority }) // add date
+        dates: new DateModel({ _id, name, date, taskType: type, priority, to, from }) // add date
       }
     });
 
@@ -466,14 +482,14 @@ app.post('/api/date/add', async (req, res) => {
 app.put('/api/date/update/:id', async (req, res) => {
   try {
     const { id } = req.params; // get id
-    const { calendar, name, date, type, priority, completed_by } = req.body; // get calendar info
+    const { calendar, name, date, type, priority, to, from, completed_by } = req.body; // get calendar info
 
     await connectMongoDB(); // connect to database
 
     const updatedDate = await CalendarModel.findOneAndUpdate({ _id: calendar, "dates._id": id }, { // find specific calendar with date
       $set: {
         date_modified: Date.now(), // update modification time
-        "dates.$": ({ name, date, type, priority, date_modified: Date.now() }) // update specific date
+        "dates.$": ({ name, date, taskType: type, priority, to, from, date_modified: Date.now() }) // update specific date
       }
     }); // update calendar
 

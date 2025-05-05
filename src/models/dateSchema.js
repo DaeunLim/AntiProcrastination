@@ -13,9 +13,15 @@ const dateSchema = new Schema({
         type: Date,
         required: true,
     },
-    type: {
+    taskType: {
         type: String,
         required: true,
+    },
+    to: {
+        type: Date,
+    },
+    from: {
+        type: Date,
     },
     priority: {
         type: Number,
