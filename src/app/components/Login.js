@@ -16,7 +16,7 @@ function Login({ isVerified, setVerified }) {
         if (isVerified) {
             history("/home")
         }
-    })
+    }, [isVerified])
     async function submit(e) {
         e.preventDefault();
         try {

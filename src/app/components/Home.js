@@ -5,11 +5,18 @@ import TodoList from './TodoList/TodoList'; // Todo List component
 import SocialBox from './SocialBox'; // Social Box component
 import MonthCalendar from './MonthCalendar/MonthCalendar'; // Small calendar
 import MainCalendar from './MainCalendar/MainCalendar'; // Full calendar
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, redirect } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom'; // React Router
 import './Home.css'; // CSS styles for Home component
 
-function Home({ isVerified, setVerified, user }) {
+function Home({ isLoading, isVerified, setVerified, user }) {
+
+    const history = useNavigate();
+    useEffect(() => {
+        if (!isVerified) {
+            history("/")
+        }
+    }, [isVerified])
   const currentDate = new Date();
   const month = currentDate.getMonth(); // Current month (0-11)
   const year = currentDate.getFullYear(); // Current year
