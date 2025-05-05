@@ -61,7 +61,7 @@ function Home({ isLoading, isVerified, setVerified, user }) {
 
       if (response.status === 201) {
         // If the calendar is successfully added to the database, update the local state
-        setCalendars([...calendars, {_id: response.data._id, name: newName, owner: user._id, subscribers: [], dates: [], invitations: []}]);
+        setCalendars([...calendars, { _id: response.data._id, name: newName, owner: user._id, subscribers: [], dates: [], invitations: [] }]);
       } else {
         alert("Failed to add calendar to the database");
       }
@@ -99,7 +99,6 @@ function Home({ isLoading, isVerified, setVerified, user }) {
     setCalendars(newCalendars);
   };
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  //
 
   return (
     //<Router> --deleted since the render is wrapped in <BrowserRouter>
@@ -128,55 +127,54 @@ function Home({ isLoading, isVerified, setVerified, user }) {
       <div className={`Home-main ${sidebarOpen ? 'shifted' : ''}`}>
         {/* Using useNavigate */}
 
-        <Routes>
-          <Route
-            index
-            element={
-              <div className="home-main-content">
-                <TodoList />
-
-                {/* Calendar Tabs */}
-                <div className="home-middle-section">
-                  <div className="calendar-tabs-wrapper">
-                    <div className="tab-buttons">
-                      {calendars.map((calendar, idx) => (
-                        <Suspense key={idx}>
-                          <button
-                            key={idx}
-                            onClick={() => {
-                              setActiveTab(idx);
-                              setSelectedCalendar(calendar);
-                            }}
-                            className={idx === activeTab ? 'active-tab' : ''}
-                          >
-                            {calendar.name}
-                          </button>
-                        </Suspense>
-                      ))}
-                    </div>
-
-                    {calendars.map((calendar, idx) => (
-                      <Suspense key={idx}>
-                        <div
-                          key={idx}
-                          className="calendar-tab-content"
-                          style={{ display: idx === activeTab ? 'block' : 'none' }}
-                        >
-                          <MonthCalendar
-                            month={month}
-                            year={year}
-                            calendar={calendar}
-                            taskByDate={taskDataByCalendar[calendar.name] || {}}
-                            onAddTask={(dateKey, taskObj) => addTaskToCalendar(calendar, dateKey, taskObj)}
-                          />
-                        </div>
-                      </Suspense>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            }
+        <div className="home-main-content">
+          
+          <TodoList
+            user={user}
+            calendars={calendars}
           />
+
+          {/* Calendar Tabs */}
+          <div className="home-middle-section">
+            <div className="calendar-tabs-wrapper">
+              <div className="tab-buttons">
+                {calendars.map((calendar, idx) => (
+                  <Suspense key={idx}>
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setActiveTab(idx);
+                        setSelectedCalendar(calendar);
+                      }}
+                      className={idx === activeTab ? 'active-tab' : ''}
+                    >
+                      {calendar.name}
+                    </button>
+                  </Suspense>
+                ))}
+              </div>
+
+              {calendars.map((calendar, idx) => (
+                <Suspense key={idx}>
+                  <div
+                    key={idx}
+                    className="calendar-tab-content"
+                    style={{ display: idx === activeTab ? 'block' : 'none' }}
+                  >
+                    <MonthCalendar
+                      month={month}
+                      year={year}
+                      calendar={calendar}
+                      taskByDate={taskDataByCalendar[calendar.name] || {}}
+                      onAddTask={(dateKey, taskObj) => addTaskToCalendar(calendar, dateKey, taskObj)}
+                    />
+                  </div>
+                </Suspense>
+              ))}
+            </div>
+          </div>
+        </div>
+        <Routes>
           <Route
             path="/calendar"
             element={

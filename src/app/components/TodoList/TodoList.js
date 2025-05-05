@@ -1,14 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './TodoList.css';
 
-function TodoList() {
-  const [todos, setTodos] = useState([
-    { task: 'Overdue Task', due: '2025-04-21', completed: false },
-    { task: 'Task01', due: '2025-04-24', completed: false },
-    { task: 'Task02', due: '2025-04-26', completed: false },
-    { task: 'Task 03', due: '2025-05-03', completed: false }
-  ]);
-
+function TodoList({ user, calendars }) {
   const [adding, setAdding] = useState(false);
   const [newTask, setNewTask] = useState('');
   const [newDate, setNewDate] = useState('');
@@ -21,8 +14,8 @@ function TodoList() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const getUrgencyColor = (dueStr) => {
-    const due = new Date(dueStr);
+  const getUrgencyColor = (time) => {
+    const due = new Date(time);
     due.setHours(0, 0, 0, 0);
     const diff = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
     if (diff < 0) return 'gray';
@@ -37,8 +30,8 @@ function TodoList() {
   };
 
   const getOverdueTodos = () =>
-    todos.map((t, i) => ({ ...t, originalIndex: i }))
-      .filter(t => new Date(t.due) < today && !t.completed);
+    calendars.map(calendar => calendar.dates.map((t, i) => ({ ...t, originalIndex: i }))
+      .filter(t => t.date < today && -1 < t.completed_by.indexOf(user._id)));
 
   const getUpcomingTodos = () => {
     const colorOrder = { red: 0, yellow: 1, green: 2, gray: 3 };
@@ -47,12 +40,11 @@ function TodoList() {
     const mapped = todos.map((t, i) => ({
       ...t,
       originalIndex: i,
-      urgencyColor: getUrgencyColor(t.due)
+      urgencyColor: getUrgencyColor(t.date)
     }));
-
     // Separate completed and not completed
-    const active = mapped.filter(t => new Date(t.due) >= today && !t.completed);
-    const done = mapped.filter(t => new Date(t.due) >= today && t.completed);
+    const active = mapped.filter(t => t.date >= today && -1 == t.completed_by.indexOf(user._id));
+    const done = mapped.filter(t => t.date >= today && t.completed_by.indexOf(user._id) >= 0);
 
     // Sort each by urgency color
     active.sort((a, b) => colorOrder[a.urgencyColor] - colorOrder[b.urgencyColor]);
@@ -70,7 +62,7 @@ function TodoList() {
     setNewDate('');
     setAdding(false);
   };
-  
+
 
   const toggleComplete = (index) => {
     setTodos(prev => prev.map((t, i) => i === index ? { ...t, completed: !t.completed } : t));
@@ -84,13 +76,13 @@ function TodoList() {
     setTodos(prev => prev.map((t, i) => i === index ? { ...t, task: value } : t));
     setEditingTaskIndex(null);
   };
-  
+
   const updateTaskDate = (index, value) => {
     const normalizedDate = new Date(value).toISOString().split('T')[0];
     setTodos(prev => prev.map((t, i) => i === index ? { ...t, due: normalizedDate } : t));
     setEditingDateIndex(null);
   };
-  
+
 
   const renderTaskRow = (t, index) => (
     <li key={index} className={`todo-box ${t.completed ? 'completed' : ''}`}>
@@ -98,7 +90,7 @@ function TodoList() {
         <input
           type="date"
           className="todo-time-input"
-          value={t.due}
+          value={t.date}
           autoFocus
           onChange={(e) => updateTaskDate(index, e.target.value)}
           onBlur={() => setEditingDateIndex(null)}
@@ -106,7 +98,7 @@ function TodoList() {
         />
       ) : (
         <span className="todo-time" onClick={() => setEditingDateIndex(index)}>
-          {formatDate(t.due)}
+          {formatDate(t.date)}
         </span>
       )}
 
@@ -132,7 +124,7 @@ function TodoList() {
         </span>
       )}
 
-      <span className="todo-dot" style={{ backgroundColor: getUrgencyColor(t.due) }}></span>
+      <span className="todo-dot" style={{ backgroundColor: getUrgencyColor(t.date) }}></span>
 
       <div className="todo-actions">
         <button onClick={() => toggleComplete(index)}>✔</button>
@@ -173,7 +165,7 @@ function TodoList() {
       )}
 
       <ul className="todo-list">
-        {getUpcomingTodos().map(t => renderTaskRow(t, t.originalIndex))}
+        {calendars.map(calendar => calendar.dates.map(date => renderTaskRow(date)))}
         {adding && (
           <li className="todo-box new-task">
             <input
