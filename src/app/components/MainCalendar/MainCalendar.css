@@ -4,8 +4,7 @@
   align-items: flex-start;
   flex-direction: row;
   height: 100vh;
-  margin: 20px;
-  padding: 30px;
+  box-sizing: border-box;
 }
 
 .main-calendar {
@@ -21,8 +20,15 @@
     font-size: 1.5rem;
     font-weight: bold;
     margin-bottom: 10px;
+    gap: 50px;
   }
-  
+  .month-nav {
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
   .main-calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -101,7 +107,7 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #4caf50;
+    background-color: #ff928f;
     color: white;
     font-size: 24px;
     border: none;
